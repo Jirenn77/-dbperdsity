@@ -9,6 +9,7 @@ import { Menu } from "@headlessui/react";
 const navLinks = [
     { href: "/servicess", label: "Services", icon: "💆‍♀️" },
     { href: "/price-list", label: "Price List", icon: "📋" }, // New Price List link
+    { href: "/items", label: "Item Groups", icon: "📂" },
 ];
 
 

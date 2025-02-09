@@ -7,14 +7,10 @@ import { Menu } from "@headlessui/react";
 
 
 const navLinks = [
-    { href: "/book-treatment", label: "Book Treatment", icon: "💆‍♀️" },
-    { href: "/view-appointments", label: "View Appointments", icon: "📅" },
-    { href: "/spa-services", label: "Spa Services", icon: "🧖‍♀️" },
-    { href: "/salon-services", label: "Salon Services", icon: "💅" },
-    { href: "/slimming-treatments", label: "Slimming Treatments", icon: "🏃‍♀️" },
-    { href: "/view-client-history", label: "Client History", icon: "📜" },
-    { href: "/price-list", label: "Price List", icon: "📋" },
+    { href: "/servicess", label: "Services", icon: "💆‍♀️" },
+    { href: "/price-list", label: "Price List", icon: "📋" }, // New Price List link
 ];
+
 
 export default function PriceList() {
     const [searchQuery, setSearchQuery] = useState("");
