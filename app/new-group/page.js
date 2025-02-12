@@ -1,28 +1,44 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Menu } from "@headlessui/react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const navLinks = [
-    { href: "/services", label: "Services", icon: "\uD83D\uDC86\u200D♀️" },
+    { href: "/servicess", label: "Services", icon: "\uD83D\uDC86‍♀️" },
     { href: "/price-list", label: "Price List", icon: "\uD83D\uDCCB" },
-    { href: "/items", label: "Item Groups", icon: "📂" },
+    { href: "/items", label: "📂", icon: "Item Groups" },
+];
+
+const salesLinks = [
+    { href: "/customers", label: "Customers", icon: "👥" },
+    { href: "/invoices", label: "📜" },
+    { href: "/payments", label: "💰" },
 ];
 
 export default function NewGroup() {
+    const router = useRouter();
+    const [groupName, setGroupName] = useState("");
+    const [description, setDescription] = useState("");
+    const [status, setStatus] = useState("Active");
+
+    const handleSave = () => {
+        if (!groupName) {
+            toast.error("Group Name is required");
+            return;
+        }
+        toast.success("Service Item Group saved successfully");
+        router.push("/items");
+    };
+
     return (
         <div className="flex flex-col h-screen bg-[#77DD77] text-gray-900">
             {/* Header */}
             <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                <div className="flex items-center space-x-4">
-                    <Link href="/home">
-                        <button className="text-2xl">🏠</button>
-                    </Link>
-                </div>
+                <Link href="/home" className="text-2xl">🏠</Link>
                 <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-                        ➕
-                    </button>
                     <input
                         type="text"
                         placeholder="Search..."
@@ -32,14 +48,7 @@ export default function NewGroup() {
                         Search
                     </button>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <Link href="/acc-settings">
-                        <button className="text-xl">⚙️</button>
-                    </Link>
-                    <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
-                        A
-                    </div>
-                </div>
+                <Link href="/acc-settings" className="text-xl">⚙️</Link>
             </header>
             <div className="flex flex-1">
                 {/* Sidebar */}
@@ -53,12 +62,7 @@ export default function NewGroup() {
                             {navLinks.map((link) => (
                                 <Menu.Item key={link.href}>
                                     {({ active }) => (
-                                        <Link
-                                            href={link.href}
-                                            className={`flex items-center space-x-4 p-3 rounded-lg ${
-                                                active ? "bg-[#4CAF4C] text-white" : ""
-                                            }`}
-                                        >
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
                                             <span className="text-xl">{link.icon}</span>
                                             <span className="font-medium">{link.label}</span>
                                         </Link>
@@ -67,10 +71,13 @@ export default function NewGroup() {
                             ))}
                         </Menu.Items>
                     </Menu>
+                    <Link href="/" className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto">
+                        <span className="text-xl">🚪</span>
+                        <span className="ml-2 font-semibold">Logout</span>
+                    </Link>
                 </nav>
-
                 {/* Main Content */}
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-8 bg-gradient-to-b from-[#77DD77] to-[#CFFFCF]">
                     <div className="bg-white p-6 rounded-lg shadow">
                         <h2 className="text-lg font-bold mb-4">Service Item Group Details</h2>
                         <form className="space-y-4">
@@ -78,6 +85,8 @@ export default function NewGroup() {
                                 <label className="block text-sm font-medium text-gray-700">Group Name*</label>
                                 <input
                                     type="text"
+                                    value={groupName}
+                                    onChange={(e) => setGroupName(e.target.value)}
                                     placeholder="Enter group name"
                                     className="w-full px-4 py-2 border rounded-lg focus:outline-none"
                                 />
@@ -85,13 +94,19 @@ export default function NewGroup() {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Description</label>
                                 <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Enter description"
                                     className="w-full px-4 py-2 border rounded-lg focus:outline-none"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Status</label>
-                                <select className="w-full px-4 py-2 border rounded-lg focus:outline-none">
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+                                >
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
                                 </select>
@@ -103,7 +118,7 @@ export default function NewGroup() {
                                 <Link href="/items">
                                     <button className="px-4 py-2 bg-gray-300 rounded-lg">Cancel</button>
                                 </Link>
-                                <button className="px-4 py-2 bg-[#5BBF5B] text-white rounded-lg">Save</button>
+                                <button onClick={handleSave} className="px-4 py-2 bg-[#5BBF5B] text-white rounded-lg">Save</button>
                             </div>
                         </div>
                     </div>

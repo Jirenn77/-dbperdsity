@@ -9,6 +9,14 @@ import { Menu } from "@headlessui/react";
 const navLinks = [
     { href: "/servicess", label: "Services", icon: "💆‍♀️" },
     { href: "/price-list", label: "Price List", icon: "📋" }, // New Price List link
+    { href: "/items", label: "Item Groups", icon: "📂" },
+];
+
+
+const salesLinks = [
+    { href: "/customers", label: "Customers", icon: "👥" },
+    { href: "/invoices", label: "Invoices", icon: "📜" },
+    { href: "/payments", label: "Payments", icon: "💰" },
 ];
 
 
@@ -92,7 +100,7 @@ export default function PriceList() {
 
                 {/* Right section: User icon */}
                 <div className="flex items-center space-x-4">
-                <Link href="/acc-settings">
+                    <Link href="/acc-settings">
                         <button className="text-xl">⚙️</button>
                     </Link>
                     <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
@@ -103,10 +111,11 @@ export default function PriceList() {
 
             <div className="flex flex-1">
                 {/* Sidebar */}
-                <nav className="w-64 bg-[#66C466] text-white flex flex-col items-center py-6">
-                    <h1 className="text-2xl font-bold mb-6">Lizly Skin Care Clinic</h1>
+                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
+                    <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
+                    {/* Navigation Menus */}
                     <Menu as="div" className="relative w-full px-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left flex items-center">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
                             <span className="mr-2">🛒</span> POS ▾
                         </Menu.Button>
                         <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
@@ -118,13 +127,57 @@ export default function PriceList() {
                                             className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}
                                         >
                                             <span className="text-xl">{link.icon}</span>
-                                            <span className="font-medium">{link.label}</span>
+                                            <span className="font-normal md:font-bold">{link.label}</span>
                                         </Link>
                                     )}
                                 </Menu.Item>
                             ))}
                         </Menu.Items>
                     </Menu>
+
+                    <Menu as="div" className="relative w-full px-4 mt-4">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+                            <span className="mr-2">📊</span> Sales ▾
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+                            {salesLinks.map((link) => (
+                                <Menu.Item key={link.href}>
+                                    {({ active }) => (
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                                            <span className="text-xl">{link.icon}</span>
+                                            <span className="font-normal md:font-bold">{link.label}</span>
+                                        </Link>
+                                    )}
+                                </Menu.Item>
+                            ))}
+                        </Menu.Items>
+                    </Menu>
+
+                    {/* Inventory Menu */}
+                    <Menu as="div" className="relative w-full px-4 mt-4">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+                            <span className="mr-2">📦</span> Inventory ▾
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+                            {[
+                                { href: "/products", label: "Products", icon: "📦" },
+                                { href: "/categories", label: "Product Category", icon: "📁" },
+                                { href: "/stocks", label: "Stock Levels", icon: "📊" },
+                                { href: "/suppliers", label: "Supplier Management", icon: "🏭" },
+                                { href: "/purchase", label: "Purchase Order", icon: "🛒" },
+                            ].map((link) => (
+                                <Menu.Item key={link.href}>
+                                    {({ active }) => (
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                                            <span className="text-xl">{link.icon}</span>
+                                            <span className="font-normal md:font-bold">{link.label}</span>
+                                        </Link>
+                                    )}
+                                </Menu.Item>
+                            ))}
+                        </Menu.Items>
+                    </Menu>
+
                     <Link
                         href="/"
                         className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
@@ -135,7 +188,7 @@ export default function PriceList() {
                 </nav>
 
                 {/* Main Content */}
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-8 bg-gradient-to-b from-[#77DD77] to-[#CFFFCF]">
                     <div className="p-6 bg-white rounded-lg shadow">
                         <h2 className="text-lg font-bold mb-4">Price List</h2>
 

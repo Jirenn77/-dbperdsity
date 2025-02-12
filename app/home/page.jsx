@@ -12,6 +12,11 @@ const navLinks = [
     { href: "/items", label: "Item Groups", icon: "📂" },
 ];
 
+const salesLinks = [
+    { href: "/customers", label: "Customers", icon: "👥" },
+    { href: "/invoices", label: "Invoices", icon: "📜" },
+    { href: "/payments", label: "Payments", icon: "💰" },
+];
 
 export default function Dashboard() {
     const [totalAppointments, setTotalAppointments] = useState(0);
@@ -20,13 +25,14 @@ export default function Dashboard() {
     const [inventorySummary, setInventorySummary] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAppointments = async () => {
+            setLoading(true);
             try {
                 const res = await fetch("http://localhost/API/getAppointments.php?action=get_appointments");
                 const data = await res.json();
-
                 const { appointments, totalAppointments } = data;
                 const upcoming = appointments.filter(
                     (appointment) => new Date(appointment.date) > new Date()
@@ -37,10 +43,13 @@ export default function Dashboard() {
             } catch (error) {
                 toast.error("Error fetching appointments.");
                 console.error("Error fetching appointments:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         const fetchProductDetails = async () => {
+            setLoading(true);
             try {
                 const res = await fetch("http://localhost/API/getProducts.php?action=get_product_details");
                 const data = await res.json();
@@ -53,10 +62,13 @@ export default function Dashboard() {
             } catch (error) {
                 toast.error("Error fetching product details.");
                 console.error("Error fetching product details:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         const fetchInventorySummary = async () => {
+            setLoading(true);
             try {
                 const res = await fetch("http://localhost/API/getInventory.php?action=get_inventory_summary");
                 const data = await res.json();
@@ -68,6 +80,8 @@ export default function Dashboard() {
             } catch (error) {
                 toast.error("Error fetching inventory summary.");
                 console.error("Error fetching inventory summary:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -83,9 +97,13 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, []);
 
-    const handleSearch = () => {
-        toast(`Searching for: ${searchQuery}`);
-        console.log("Search query:", searchQuery);
+    const handleSearch = async () => {
+        if (searchQuery.trim()) {
+            const res = await fetch(`http://localhost/API/search.php?q=${searchQuery}`);
+            const data = await res.json();
+            console.log("Search Results:", data);
+            toast(`Searching for: ${searchQuery}`);
+        }
     };
 
     const handleAddUser = () => {
@@ -103,20 +121,24 @@ export default function Dashboard() {
         console.log("Add Service Item Group clicked");
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("authToken");
+        // Redirect to login page
+        window.location.href = "/login";
+    };
+
     return (
-        <div className="flex flex-col h-screen bg-[#77DD77] text-gray-900">
+        <div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#CFFFCF] text-gray-900">
             <Toaster />
 
             {/* Header */}
             <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                {/* Left section: Home and Account Settings buttons */}
                 <div className="flex items-center space-x-4">
                     <Link href="/home">
                         <button className="text-2xl">🏠</button>
                     </Link>
                 </div>
 
-                {/* Center section: Modal button, Search bar, and Search button */}
                 <div className="flex items-center space-x-4 flex-grow justify-center">
                     <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
                         ➕
@@ -136,9 +158,8 @@ export default function Dashboard() {
                     </button>
                 </div>
 
-                {/* Right section: User icon */}
                 <div className="flex items-center space-x-4">
-                <Link href="/acc-settings">
+                    <Link href="/acc-settings">
                         <button className="text-xl">⚙️</button>
                     </Link>
                     <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
@@ -148,11 +169,10 @@ export default function Dashboard() {
             </header>
 
             <div className="flex flex-1">
-                {/* Sidebar */}
-                <nav className="w-64 bg-[#66C466] text-white flex flex-col items-center py-6">
-                    <h1 className="text-2xl font-bold mb-6">Lizly Skin Care Clinic</h1>
+                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
+                    <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
                     <Menu as="div" className="relative w-full px-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left flex items-center">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
                             <span className="mr-2">🛒</span> POS ▾
                         </Menu.Button>
                         <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
@@ -164,15 +184,60 @@ export default function Dashboard() {
                                             className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}
                                         >
                                             <span className="text-xl">{link.icon}</span>
-                                            <span className="font-medium">{link.label}</span>
+                                            <span className="font-normal md:font-bold">{link.label}</span>
                                         </Link>
                                     )}
                                 </Menu.Item>
                             ))}
                         </Menu.Items>
                     </Menu>
+
+                    <Menu as="div" className="relative w-full px-4 mt-4">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+                            <span className="mr-2">📊</span> Sales ▾
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+                            {salesLinks.map((link) => (
+                                <Menu.Item key={link.href}>
+                                    {({ active }) => (
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                                            <span className="text-xl">{link.icon}</span>
+                                            <span className="font-normal md:font-bold">{link.label}</span>
+                                        </Link>
+                                    )}
+                                </Menu.Item>
+                            ))}
+                        </Menu.Items>
+                    </Menu>
+
+                    {/* Inventory Menu */}
+                    <Menu as="div" className="relative w-full px-4 mt-4">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+                            <span className="mr-2">📦</span> Inventory ▾
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+                            {[
+                                { href: "/products", label: "Products", icon: "📦" },
+                                { href: "/categories", label: "Product Category", icon: "📁" },
+                                { href: "/stocks", label: "Stock Levels", icon: "📊" },
+                                { href: "/suppliers", label: "Supplier Management", icon: "🏭" },
+                                { href: "/purchase", label: "Purchase Order", icon: "🛒" },
+                            ].map((link) => (
+                                <Menu.Item key={link.href}>
+                                    {({ active }) => (
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                                            <span className="text-xl">{link.icon}</span>
+                                            <span className="font-normal md:font-bold">{link.label}</span>
+                                        </Link>
+                                    )}
+                                </Menu.Item>
+                            ))}
+                        </Menu.Items>
+                    </Menu>
+
                     <Link
-                        href="/"
+                        href="#"
+                        onClick={handleLogout}
                         className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
                     >
                         <span className="text-xl">🚪</span>
@@ -180,8 +245,7 @@ export default function Dashboard() {
                     </Link>
                 </nav>
 
-                {/* Main Content */}
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-8 max-w-screen-xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Product Details */}
                         <div className="p-6 bg-white rounded-lg shadow">
@@ -226,10 +290,12 @@ export default function Dashboard() {
                     open={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
                 >
-                    <Dialog.Panel className="bg-[#56A156] p-6 rounded-lg shadow-xl w-full max-w-lg">
-                        <Dialog.Title className="text-lg font-bold text-[#FFFFFF] mb-4">Select Option</Dialog.Title>
-                        <div className="grid grid-cols-2 gap-6">
+                    <Dialog.Panel className="bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 p-6 rounded-lg shadow-xl w-full max-w-lg">
+                        <Dialog.Title id="modal-title" className="text-lg font-bold text-gray-900 mb-4">Select Option</Dialog.Title>
+                        <div id="modal-description" className="grid grid-cols-2 gap-6">
                             {/* General Section */}
                             <div>
                                 <div className="flex items-center space-x-2 mb-4">
@@ -289,10 +355,10 @@ export default function Dashboard() {
                                     </li>
                                     <li>
                                         <button
-                                            onClick={() => toast("Payment Received functionality triggered.")}
+                                            onClick={() => toast("Payments functionality triggered.")}
                                             className="text-[#FFFFFF]-600 hover:underline hover:text-blue-600"
                                         >
-                                            + Payment Received
+                                            + Payments
                                         </button>
                                     </li>
                                 </ul>

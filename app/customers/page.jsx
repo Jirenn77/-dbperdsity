@@ -11,46 +11,41 @@ const navLinks = [
   { href: "/items", label: "Item Groups", icon: "📂" },
 ];
 
-
 const salesLinks = [
   { href: "/customers", label: "Customers", icon: "👥" },
   { href: "/invoices", label: "Invoices", icon: "📜" },
   { href: "/payments", label: "Payments", icon: "💰" },
 ];
 
-export default function ServicesPage() {
-  const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
+export default function CustomersPage() {
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchCustomers = async () => {
       const data = [
         {
           id: 1,
-          name: "Haircut Rebond",
-          type: "Hair Services",
-          description: "Haircut and rebonding treatment.",
-          price: "P999.00",
-          adjustment: "Holiday Special",
-          link: "Inventory Link 1",
+          name: "Lucy Anne",
+          contact: "09123456789",
+          email: "lucyy@gmail.com",
+          address: "123 Main St, Anytown",
         },
         {
           id: 2,
-          name: "Hair Botox Treatment",
-          type: "Hair Services",
-          description: "Botox treatment for hair.",
-          price: "P1200.00",
-          adjustment: "Regular Price",
-          link: "Inventory Link 2",
+          name: "Mrs. Garamuda",
+          contact: "09876543210",
+          email: "garamuds@gmail.com",
+          address: "456 Elm St, Othertown",
         },
       ];
-      setServices(data);
+      setCustomers(data);
     };
-    fetchServices();
+    fetchCustomers();
   }, []);
 
   const handleSearch = () => {
@@ -60,7 +55,7 @@ export default function ServicesPage() {
 
   const handleEdit = () => {
     setEditMode(true);
-    setFormData(selectedService);
+    setFormData(selectedCustomer);
   };
 
   const handleSave = () => {
@@ -68,7 +63,7 @@ export default function ServicesPage() {
     // Add your save logic here
     toast.success("Changes saved successfully");
   };
-<div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900"></div>
+
   return (
     <div className="flex flex-col h-screen bg-[#77DD77] text-gray-900">
       <Toaster />
@@ -114,6 +109,7 @@ export default function ServicesPage() {
             </header>
 
             <div className="flex flex-1">
+                {/* Sidebar */}
                 <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
                     <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
                     {/* Navigation Menus */}
@@ -180,40 +176,47 @@ export default function ServicesPage() {
                             ))}
                         </Menu.Items>
                     </Menu>
+
+                    <Link
+                        href="/"
+                        className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
+                    >
+                        <span className="text-xl">🚪</span>
+                        <span className="ml-2 font-semibold">Logout</span>
+                    </Link>
                 </nav>
 
         {/* Main Content */}
         <main className="flex-1 p-8 bg-gradient-to-b from-[#77DD77] to-[#CFFFCF]">
           <div className="grid grid-cols-3 gap-6">
-            {/* Services List */}
+            {/* Customers List */}
             <div className="col-span-1 bg-white rounded-lg shadow p-4">
-              <h2 className="text-lg font-bold mb-4">All Services</h2>
+              <h2 className="text-lg font-bold mb-4">All Customers</h2>
               <ul className="space-y-2">
-                {services.map((service) => (
+                {customers.map((customer) => (
                   <li
-                    key={service.id}
-                    onClick={() => setSelectedService(service)}
-                    className={`p-2 rounded-lg cursor-pointer hover:bg-[#E3F9E5] ${
-                      selectedService?.id === service.id ? "bg-[#C5F0C5]" : ""
-                    }`}
+                    key={customer.id}
+                    onClick={() => setSelectedCustomer(customer)}
+                    className={`p-2 rounded-lg cursor-pointer hover:bg-[#E3F9E5] ${selectedCustomer?.id === customer.id ? "bg-[#C5F0C5]" : ""
+                      }`}
                   >
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         className="form-checkbox h-4 w-4 text-green-600"
                       />
-                      <span>{service.name}</span>
+                      <span>{customer.name}</span>
                     </label>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Service Details */}
-            {selectedService && (
+            {/* Customer Details */}
+            {selectedCustomer && (
               <div className="col-span-2 bg-white rounded-lg shadow p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-bold">{selectedService.name}</h2>
+                  <h2 className="text-lg font-bold">{selectedCustomer.name}</h2>
                   <div className="space-x-2">
                     {!editMode ? (
                       <button
@@ -235,91 +238,45 @@ export default function ServicesPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Service Type</label>
-                    {editMode ? (
-                      <select
-                        value={formData.type}
-                        onChange={(e) => setFormData({...formData, type: e.target.value})}
-                        className="w-full p-2 border rounded"
-                      >
-                        <option>Hair Services</option>
-                        <option>Skin Services</option>
-                        <option>Nail Services</option>
-                      </select>
-                    ) : (
-                      <p>{selectedService.type}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
-                    {editMode ? (
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({...formData, description: e.target.value})}
-                        className="w-full p-2 border rounded"
-                      />
-                    ) : (
-                      <p>{selectedService.description}</p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Price</label>
-                      {editMode ? (
-                        <input
-                          type="text"
-                          value={formData.price}
-                          onChange={(e) => setFormData({...formData, price: e.target.value})}
-                          className="w-full p-2 border rounded"
-                        />
-                      ) : (
-                        <p>{selectedService.price}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Price Adjustment</label>
-                      {editMode ? (
-                        <select
-                          value={formData.adjustment}
-                          onChange={(e) => setFormData({...formData, adjustment: e.target.value})}
-                          className="w-full p-2 border rounded"
-                        >
-                          <option>Holiday Special</option>
-                          <option>Regular Price</option>
-                          <option>Seasonal Discount</option>
-                        </select>
-                      ) : (
-                        <p>{selectedService.adjustment}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Inventory Link</label>
+                    <label className="block text-sm font-medium mb-1">Contact</label>
                     {editMode ? (
                       <input
                         type="text"
-                        value={formData.link}
-                        onChange={(e) => setFormData({...formData, link: e.target.value})}
+                        value={formData.contact}
+                        onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                         className="w-full p-2 border rounded"
                       />
                     ) : (
-                      <a href="#" className="text-blue-600 hover:underline">
-                        {selectedService.link}
-                      </a>
+                      <p>{selectedCustomer.contact}</p>
                     )}
                   </div>
-                </div>
 
-                {/* More Section */}
-                <div className="mt-6 pt-4 border-t">
-                  <h3 className="font-medium mb-2">More</h3>
-                  <button className="text-blue-600 hover:text-blue-800">
-                    + Add Additional Option
-                  </button>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Email</label>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full p-2 border rounded"
+                      />
+                    ) : (
+                      <p>{selectedCustomer.email}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Address</label>
+                    {editMode ? (
+                      <textarea
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        className="w-full p-2 border rounded"
+                      />
+                    ) : (
+                      <p>{selectedCustomer.address}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

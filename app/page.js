@@ -14,15 +14,15 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Sending data:", JSON.stringify({ email, password })); // Debug log
-    
+
         try {
             const res = await axios.post(
                 "http://localhost/API/getBalance.php?action=login",
                 new URLSearchParams({ email, password }) // Convert to URL encoded params
             );
-            
+
             console.log("Response:", res.data); // Debug log
-    
+
             if (res.data.role) {
                 toast.success("Login successful!");
                 router.push(res.data.role === "admin" ? "/home" : "/customer-home");
@@ -38,45 +38,50 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center h-screen bg-lime-200 text-gray-900 p-6">
+        <div
+            className="flex items-center justify-center h-screen bg-gradient-to-br from-lime-200 via-lime-300 to-lime-400 p-6"
+        >
             <Toaster />
-            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-                <h1 className="text-2xl font-bold mb-6 text-center text-lime-600">Login</h1>
-                {error && <p className="text-red-500 mb-4">{error}</p>}
+            <div className="bg-white bg-opacity-90 rounded-2xl shadow-lg p-10 max-w-md w-full">
+                <h1 className="text-3xl font-bold mb-6 text-center text-lime-600">Login</h1>
+                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block mb-2" htmlFor="email">Email</label>
                         <input
                             type="email"
-                            id="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-3 rounded-lg bg-lime-100 border border-lime-300 focus:ring-2 focus:ring-lime-500"
-                            placeholder="Enter your email"
+                            className="w-full p-3 rounded-lg bg-lime-100 border border-lime-300 focus:ring-2 focus:ring-lime-500 placeholder-gray-600 text-gray-700"
+                            placeholder="Email"
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-2" htmlFor="password">Password</label>
                         <input
                             type="password"
-                            id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-3 rounded-lg bg-lime-100 border border-lime-300 focus:ring-2 focus:ring-lime-500"
-                            placeholder="Enter your password"
+                            className="w-full p-3 rounded-lg bg-lime-100 border border-lime-300 focus:ring-2 focus:ring-lime-500 placeholder-gray-600 text-gray-700"
+                            placeholder="Password"
                             required
                         />
                     </div>
-                    <button type="submit" className="w-full bg-lime-600 hover:bg-lime-500 text-white rounded-lg py-2 text-sm">
+                    <button
+                        type="submit"
+                        className="w-full py-3 bg-lime-600 hover:bg-lime-500 text-white rounded-lg font-bold transition-all text-sm"
+                    >
                         Login
                     </button>
-                    <div className="mt-4 text-center">
-                        <button onClick={() => router.push("/register")} className="text-lime-600 hover:underline text-sm">
-                            Need an account? Register
-                        </button>
-                    </div>
                 </form>
+                <div className="mt-4 text-center text-gray-600">
+                    Need an account?{" "}
+                    <button
+                        onClick={() => router.push("/register")}
+                        className="text-lime-600 hover:underline text-sm"
+                    >
+                        Sign up here
+                    </button>
+                </div>
             </div>
         </div>
     );
