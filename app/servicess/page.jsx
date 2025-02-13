@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Toaster, toast } from "sonner";
 import { Menu } from "@headlessui/react";
+import { BarChart } from "lucide-react";
+import { Folder, ClipboardList, Factory, ShoppingBag } from "lucide-react";
+import { Home, Users, FileText, CreditCard, Package, Layers, ShoppingCart, Settings, LogOut, Plus } from "lucide-react";
 
 const navLinks = [
   { href: "/servicess", label: "Services", icon: "💆‍♀️" },
@@ -20,6 +23,8 @@ const salesLinks = [
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMoreModalOpen, setIsMoreModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -56,7 +61,7 @@ export default function ServicesPage() {
   const handleSearch = () => {
     toast(`Searching for: ${searchQuery}`);
     console.log("Search query:", searchQuery);
-};
+  };
 
   const handleEdit = () => {
     setEditMode(true);
@@ -68,119 +73,140 @@ export default function ServicesPage() {
     // Add your save logic here
     toast.success("Changes saved successfully");
   };
-<div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900"></div>
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    window.location.href = "/";
+  };
+
+  <div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900"></div>
   return (
     <div className="flex flex-col h-screen bg-[#77DD77] text-gray-900">
       <Toaster />
 
       {/* Header */}
       <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                {/* Left section: Home and Account Settings buttons */}
-                <div className="flex items-center space-x-4">
-                    <Link href="/home">
-                        <button className="text-2xl">🏠</button>
+        {/* Left section: Home and Account Settings buttons */}
+        <div className="flex items-center space-x-4">
+          <Link href="/home">
+            <button className="text-2xl">🏠</button>
+          </Link>
+        </div>
+
+        {/* Center section: Modal button, Search bar, and Search button */}
+        <div className="flex items-center space-x-4 flex-grow justify-center">
+          <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+            ➕
+          </button>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm"
+          >
+            Search
+          </button>
+        </div>
+
+        {/* Right section: User icon */}
+        <div className="flex items-center space-x-4">
+          <Link href="/acc-settings">
+            <button className="text-xl">⚙️</button>
+          </Link>
+          <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
+            A
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-1">
+        <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
+          <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
+
+          <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+              <ShoppingCart className="mr-2" size={20} /> POS ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+              {[
+                { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
+                { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
+                { href: "/items", label: "Item Groups", icon: <Package size={20} /> },
+              ].map((link) => (
+                <Menu.Item key={link.href}>
+                  {({ active }) => (
+                    <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                      {link.icon}
+                      <span className="font-normal md:font-bold">{link.label}</span>
                     </Link>
-                </div>
+                  )}
+                </Menu.Item>
+              ))}
+            </Menu.Items>
+          </Menu>
 
-                {/* Center section: Modal button, Search bar, and Search button */}
-                <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-                        ➕
-                    </button>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
-                    />
-                    <button
-                        onClick={handleSearch}
-                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm"
-                    >
-                        Search
-                    </button>
-                </div>
-
-                {/* Right section: User icon */}
-                <div className="flex items-center space-x-4">
-                <Link href="/acc-settings">
-                        <button className="text-xl">⚙️</button>
+          <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+              <BarChart className="mr-2" size={20} /> Sales ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+              {[
+                { href: "/customers", label: "Customers", icon: <Users size={20} /> },
+                { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
+                { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
+              ].map((link) => (
+                <Menu.Item key={link.href}>
+                  {({ active }) => (
+                    <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                      {link.icon}
+                      <span className="font-normal md:font-bold">{link.label}</span>
                     </Link>
-                    <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
-                        A
-                    </div>
-                </div>
-            </header>
+                  )}
+                </Menu.Item>
+              ))}
+            </Menu.Items>
+          </Menu>
 
-            <div className="flex flex-1">
-                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
-                    <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
-                    {/* Navigation Menus */}
-                    <Menu as="div" className="relative w-full px-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <span className="mr-2">🛒</span> POS ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {navLinks.map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link
-                                            href={link.href}
-                                            className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}
-                                        >
-                                            <span className="text-xl">{link.icon}</span>
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
 
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <span className="mr-2">📊</span> Sales ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {salesLinks.map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            <span className="text-xl">{link.icon}</span>
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
+          {/* Inventory Menu */}
+          <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+              <Package className="mr-2" size={20} /> Inventory ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+              {[
+                { href: "/products", label: "Products", icon: <Package size={20} /> },
+                { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
+                { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
+                { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
+                { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
+              ].map((link) => (
+                <Menu.Item key={link.href}>
+                  {({ active }) => (
+                    <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                      {link.icon}
+                      <span className="font-normal md:font-bold">{link.label}</span>
+                    </Link>
+                  )}
+                </Menu.Item>
+              ))}
+            </Menu.Items>
+          </Menu>
 
-                    {/* Inventory Menu */}
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <span className="mr-2">📦</span> Inventory ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/products", label: "Products", icon: "📦" },
-                                { href: "/categories", label: "Product Category", icon: "📁" },
-                                { href: "/stocks", label: "Stock Levels", icon: "📊" },
-                                { href: "/suppliers", label: "Supplier Management", icon: "🏭" },
-                                { href: "/purchase", label: "Purchase Order", icon: "🛒" },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            <span className="text-xl">{link.icon}</span>
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-                </nav>
+          <Link
+            href="#"
+            onClick={handleLogout}
+            className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
+          >
+            <LogOut size={20} />
+            <span className="ml-2 font-semibold">Logout</span>
+          </Link>
+        </nav>
 
         {/* Main Content */}
         <main className="flex-1 p-8 bg-gradient-to-b from-[#77DD77] to-[#CFFFCF]">
@@ -193,9 +219,8 @@ export default function ServicesPage() {
                   <li
                     key={service.id}
                     onClick={() => setSelectedService(service)}
-                    className={`p-2 rounded-lg cursor-pointer hover:bg-[#E3F9E5] ${
-                      selectedService?.id === service.id ? "bg-[#C5F0C5]" : ""
-                    }`}
+                    className={`p-2 rounded-lg cursor-pointer hover:bg-[#E3F9E5] ${selectedService?.id === service.id ? "bg-[#C5F0C5]" : ""
+                      }`}
                   >
                     <label className="flex items-center space-x-2">
                       <input
@@ -213,24 +238,33 @@ export default function ServicesPage() {
             {selectedService && (
               <div className="col-span-2 bg-white rounded-lg shadow p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-bold">{selectedService.name}</h2>
-                  <div className="space-x-2">
-                    {!editMode ? (
-                      <button
-                        onClick={handleEdit}
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                      >
-                        Edit
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleSave}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                      >
-                        Save
-                      </button>
-                    )}
-                  </div>
+                  <h2 className="text-lg font-semibold">{selectedService.name}</h2>
+                  {!editMode ? (
+                    <button
+                      onClick={handleEdit}
+                      className="text-white px-4 py-2 rounded hover:bg-green-400"
+                    >
+                      ✏️
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleSave}
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                      Save
+                    </button>
+                  )}                                <button
+                    onClick={() => setIsMoreModalOpen(true)}
+                    className="p-1 text-gray-700 hover:bg-green-400 rounded"
+                  >
+                    More
+                  </button>
+                  <button
+                    onClick={() => setSelectedService(null)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
                 </div>
 
                 <div className="space-y-4">
@@ -239,7 +273,7 @@ export default function ServicesPage() {
                     {editMode ? (
                       <select
                         value={formData.type}
-                        onChange={(e) => setFormData({...formData, type: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                         className="w-full p-2 border rounded"
                       >
                         <option>Hair Services</option>
@@ -256,7 +290,7 @@ export default function ServicesPage() {
                     {editMode ? (
                       <textarea
                         value={formData.description}
-                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="w-full p-2 border rounded"
                       />
                     ) : (
@@ -271,7 +305,7 @@ export default function ServicesPage() {
                         <input
                           type="text"
                           value={formData.price}
-                          onChange={(e) => setFormData({...formData, price: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                           className="w-full p-2 border rounded"
                         />
                       ) : (
@@ -284,7 +318,7 @@ export default function ServicesPage() {
                       {editMode ? (
                         <select
                           value={formData.adjustment}
-                          onChange={(e) => setFormData({...formData, adjustment: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, adjustment: e.target.value })}
                           className="w-full p-2 border rounded"
                         >
                           <option>Holiday Special</option>
@@ -303,7 +337,7 @@ export default function ServicesPage() {
                       <input
                         type="text"
                         value={formData.link}
-                        onChange={(e) => setFormData({...formData, link: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                         className="w-full p-2 border rounded"
                       />
                     ) : (
@@ -322,6 +356,49 @@ export default function ServicesPage() {
                   </button>
                 </div>
               </div>
+            )}
+
+            {/* More Button Modal */}
+            {isMoreModalOpen && (
+              <Dialog open={isMoreModalOpen} onClose={() => setIsMoreModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <Dialog.Panel className="bg-white p-6 rounded-lg shadow-xl w-80">
+                  <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">
+                    More Options
+                  </Dialog.Title>
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleCloneItem}
+                      className="w-full p-2 text-left hover:bg-gray-100 rounded text-gray-800"
+                    >
+                      Clone Item
+                    </button>
+                    <button
+                      onClick={handleMarkAsInactive}
+                      className="w-full p-2 text-left hover:bg-gray-100 rounded text-gray-800"
+                    >
+                      Mark as Inactive
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="w-full p-2 text-left hover:bg-gray-100 rounded text-red-600 text-gray-800"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={handleAddToGroup}
+                      className="w-full p-2 text-left hover:bg-gray-100 rounded text-gray-800"
+                    >
+                      Add to Group
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setIsMoreModalOpen(false)}
+                    className="mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-gray-800"
+                  >
+                    Close
+                  </button>
+                </Dialog.Panel>
+              </Dialog>
             )}
           </div>
         </main>

@@ -28,7 +28,9 @@ export default function ServiceItemGroups() {
         { name: "Nails and Foot Services", description: "6 Active Services" },
     ]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false); // New state for Add Group modal
     const [selectedGroup, setSelectedGroup] = useState(null);
+    const [newGroup, setNewGroup] = useState({ name: "", description: "" }); // State for new group
     const [searchQuery, setSearchQuery] = useState("");
 
     const handleSearch = () => {
@@ -39,7 +41,7 @@ export default function ServiceItemGroups() {
     };
 
     const handleAddGroup = () => {
-        router.push("/new-group");
+        setIsAddGroupModalOpen(true); // Open the Add Group modal
     };
 
     const handleEditGroup = (index) => {
@@ -64,6 +66,16 @@ export default function ServiceItemGroups() {
     const handleDeleteGroup = (index) => {
         setGroups((prev) => prev.filter((_, i) => i !== index));
         toast.success("Group deleted successfully!");
+    };
+
+    const handleAddGroupSubmit = (e) => {
+        e.preventDefault();
+        // Add the new group to the groups array
+        setGroups((prev) => [...prev, newGroup]);
+        toast.success("Group added successfully!");
+        setIsAddGroupModalOpen(false); // Close the modal
+        // Reset the form
+        setNewGroup({ name: "", description: "" });
     };
 
     return (
@@ -242,6 +254,55 @@ export default function ServiceItemGroups() {
                         <input type="text" value={selectedGroup.name} onChange={(e) => setSelectedGroup({ ...selectedGroup, name: e.target.value })} className="w-full p-2 border rounded-lg mb-3" />
                         <textarea value={selectedGroup.description} onChange={(e) => setSelectedGroup({ ...selectedGroup, description: e.target.value })} className="w-full p-2 border rounded-lg mb-3" />
                         <button onClick={handleSaveEdit} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Save Changes</button>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Group Modal */}
+            {isAddGroupModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h2 className="text-lg font-bold mb-4">Add New Group</h2>
+                        <form onSubmit={handleAddGroupSubmit}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium">Group Name</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={newGroup.name}
+                                        onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg mb-3"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium">Description</label>
+                                    <textarea
+                                        name="description"
+                                        value={newGroup.description}
+                                        onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg mb-3"
+                                        required
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <div className="flex justify-between">
+                                <button
+                                    type="button"
+                                    className="px-4 py-2 bg-gray-300 rounded-lg"
+                                    onClick={() => setIsAddGroupModalOpen(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                                >
+                                    Add Group
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

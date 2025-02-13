@@ -5,6 +5,9 @@ import Link from "next/link";
 import { Toaster, toast } from "sonner";
 import { Dialog } from "@headlessui/react";
 import { Menu } from "@headlessui/react";
+import { BarChart } from "lucide-react";
+import { Folder, ClipboardList, Factory, ShoppingBag } from "lucide-react";
+import { Home, Users, FileText, CreditCard, Package, Layers, ShoppingCart, Settings, LogOut, Plus } from "lucide-react";
 
 const navLinks = [
     { href: "/servicess", label: "Services", icon: "💆‍♀️" },
@@ -134,6 +137,11 @@ export default function InventoryPage() {
         });
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("authToken");
+        window.location.href = "/";
+    };
+
     return (
         <div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900">
             <Toaster />
@@ -176,65 +184,23 @@ export default function InventoryPage() {
             </header>
 
             <div className="flex flex-1">
-                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
+            <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
                     <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
-                    {/* Navigation Menus */}
-                    <Menu as="div" className="relative w-full px-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <span className="mr-2">🛒</span> POS ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {navLinks.map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link
-                                            href={link.href}
-                                            className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}
-                                        >
-                                            <span className="text-xl">{link.icon}</span>
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
 
                     <Menu as="div" className="relative w-full px-4 mt-4">
                         <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <span className="mr-2">📊</span> Sales ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {salesLinks.map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            <span className="text-xl">{link.icon}</span>
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-
-                    {/* Inventory Menu */}
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <span className="mr-2">📦</span> Inventory ▾
+                            <ShoppingCart className="mr-2" size={20} /> POS ▾
                         </Menu.Button>
                         <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
                             {[
-                                { href: "/products", label: "Products", icon: "📦" },
-                                { href: "/categories", label: "Product Category", icon: "📁" },
-                                { href: "/stocks", label: "Stock Levels", icon: "📊" },
-                                { href: "/suppliers", label: "Supplier Management", icon: "🏭" },
-                                { href: "/purchase", label: "Purchase Order", icon: "🛒" },
+                                { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
+                                { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
+                                { href: "/items", label: "Item Groups", icon: <Package size={20} /> },
                             ].map((link) => (
                                 <Menu.Item key={link.href}>
                                     {({ active }) => (
                                         <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            <span className="text-xl">{link.icon}</span>
+                                            {link.icon}
                                             <span className="font-normal md:font-bold">{link.label}</span>
                                         </Link>
                                     )}
@@ -242,11 +208,61 @@ export default function InventoryPage() {
                             ))}
                         </Menu.Items>
                     </Menu>
+
+                    <Menu as="div" className="relative w-full px-4 mt-4">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+                            <BarChart className="mr-2" size={20} /> Sales ▾
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+                            {[
+                                { href: "/customers", label: "Customers", icon: <Users size={20} /> },
+                                { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
+                                { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
+                            ].map((link) => (
+                                <Menu.Item key={link.href}>
+                                    {({ active }) => (
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                                            {link.icon}
+                                            <span className="font-normal md:font-bold">{link.label}</span>
+                                        </Link>
+                                    )}
+                                </Menu.Item>
+                            ))}
+                        </Menu.Items>
+                    </Menu>
+
+
+                    {/* Inventory Menu */}
+                    <Menu as="div" className="relative w-full px-4 mt-4">
+                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
+                            <Package className="mr-2" size={20} /> Inventory ▾
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
+                            {[
+                                { href: "/products", label: "Products", icon: <Package size={20} /> },
+                                { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
+                                { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
+                                { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
+                                { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
+                            ].map((link) => (
+                                <Menu.Item key={link.href}>
+                                    {({ active }) => (
+                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
+                                            {link.icon}
+                                            <span className="font-normal md:font-bold">{link.label}</span>
+                                        </Link>
+                                    )}
+                                </Menu.Item>
+                            ))}
+                        </Menu.Items>
+                    </Menu>
+
                     <Link
-                        href="/"
+                        href="#"
+                        onClick={handleLogout}
                         className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
                     >
-                        {/* <span className="text-xl">🚪</span> */}
+                        <LogOut size={20} />
                         <span className="ml-2 font-semibold">Logout</span>
                     </Link>
                 </nav>
@@ -511,7 +527,7 @@ export default function InventoryPage() {
             {/* More Button Modal */}
             {isMoreModalOpen && (
                 <Dialog open={isMoreModalOpen} onClose={() => setIsMoreModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <Dialog.Panel className="bg-white p-6 rounded-lg shadow-xl w-96">
+                    <Dialog.Panel className="bg-white p-6 rounded-lg shadow-xl w-80">
                         <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">
                             More Options
                         </Dialog.Title>
