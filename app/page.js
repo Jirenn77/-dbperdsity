@@ -12,7 +12,7 @@ export default function Login() {
     const [captchaQuestion, setCaptchaQuestion] = useState("");
     const [correctCaptchaAnswer, setCorrectCaptchaAnswer] = useState(0);
     const [error, setError] = useState("");
-    const [loginAttempts, setLoginAttempts] = useState(parseInt(localStorage.getItem("loginAttempts")) || 0);
+    const [loginAttempts, setLoginAttempts] = useState(0);
     const MAX_ATTEMPTS = 5;
     const router = useRouter();
 

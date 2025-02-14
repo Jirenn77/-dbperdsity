@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Dialog } from "@headlessui/react";
 import { Toaster, toast } from "sonner";
 import { Menu } from "@headlessui/react";
 import { BarChart } from "lucide-react";
@@ -78,6 +79,33 @@ export default function ServicesPage() {
     localStorage.removeItem("authToken");
     window.location.href = "/";
   };
+
+  const handleCloneItem = () => {
+    toast.success("Item cloned!");
+    setIsMoreModalOpen(false);
+    // Add your clone logic here
+};
+
+const handleMarkAsInactive = () => {
+  toast.success("Item marked as inactive!");
+  setIsMoreModalOpen(false);
+  // Add your mark as inactive logic here
+};
+
+const handleDelete = () => {
+  if (window.confirm(`Are you sure you want to delete ${selectedItem.name}?`)) {
+      toast.success("Item deleted!");
+      setSelectedItem(null);
+      setIsMoreModalOpen(false);
+      // Add your delete logic here
+  }
+};
+
+const handleAddToGroup = () => {
+  toast.success("Item added to group!");
+  setIsMoreModalOpen(false);
+  // Add your add to group logic here
+};
 
   <div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900"></div>
   return (
@@ -253,7 +281,7 @@ export default function ServicesPage() {
                     >
                       Save
                     </button>
-                  )}                                <button
+                  )}<button
                     onClick={() => setIsMoreModalOpen(true)}
                     className="p-1 text-gray-700 hover:bg-green-400 rounded"
                   >

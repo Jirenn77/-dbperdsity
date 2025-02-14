@@ -384,14 +384,14 @@ export default function ProductCategoryPage() {
                                     <div className="flex justify-between">
                                         <button
                                             type="button"
-                                            className="px-4 py-2 bg-gray-300 rounded-lg"
+                                            className="px-4 py-2 bg-red-500 hover:bg-red-400 rounded-lg"
                                             onClick={() => setIsAddCategoryModalOpen(false)}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                                            className="px-4 py-2 bg-[#5BBF5B] hover:bg-[#56AE57] text-white rounded-lg"
                                         >
                                             Add Category
                                         </button>
