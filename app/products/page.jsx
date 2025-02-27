@@ -21,6 +21,33 @@ const salesLinks = [
     { href: "/payments", label: "Payments", icon: "💰" },
 ];
 
+const addItem = async () => {
+    const payload = {
+        action: "add_item", // Ensure this is included
+        name: "New Item",
+        category: "Category",
+        type: "Type",
+        stockQty: 10,
+        service: "Service",
+        description: "Description",
+        unitPrice: 100.00,
+        supplier: "Supplier",
+    };
+
+    console.log("Sending payload:", payload); // Log the payload
+
+    const response = await fetch("http://localhost/API/addItem.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log("Response from server:", data); // Log the response
+};
+
 export default function InventoryPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [products, setProducts] = useState([]);
@@ -30,7 +57,7 @@ export default function InventoryPage() {
     const [isMoreModalOpen, setIsMoreModalOpen] = useState(false);
     const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
-    const [newItem, setNewItem] = useState({ 
+    const [newItem, setNewItem] = useState({
         name: "",
         category: "",
         type: "",
@@ -65,35 +92,159 @@ export default function InventoryPage() {
     };
 
     const handleEdit = () => {
-        toast.success("Edit button clicked!");
-        // Add your edit logic here
+        setModalType("edit"); // Set modal type to "edit"
+        setIsModalOpen(true); // Open the modal
     };
 
-    const handleCloneItem = () => {
-        toast.success("Item cloned!");
-        setIsMoreModalOpen(false);
-        // Add your clone logic here
-    };
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
 
-    const handleMarkAsInactive = () => {
-        toast.success("Item marked as inactive!");
-        setIsMoreModalOpen(false);
-        // Add your mark as inactive logic here
-    };
+        try {
+            const response = await fetch("http://localhost/API/addItem.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(selectedItem),
+            });
 
-    const handleDelete = () => {
-        if (window.confirm(`Are you sure you want to delete ${selectedItem.name}?`)) {
-            toast.success("Item deleted!");
-            setSelectedItem(null);
-            setIsMoreModalOpen(false);
-            // Add your delete logic here
+            const data = await response.json();
+
+            if (data.success) {
+                // Refetch the updated list of products
+                const res = await fetch("http://localhost/API/getInventory.php?action=get_products");
+                const updatedProducts = await res.json();
+
+                // Update the products state with the new data
+                setProducts(updatedProducts);
+
+                // Show success message
+                toast.success("Item updated successfully!");
+
+                // Close the modal
+                setIsModalOpen(false);
+            } else {
+                toast.error(data.error);
+            }
+        } catch (error) {
+            toast.error("Error updating item.");
+            console.error("Error updating item:", error);
         }
     };
 
-    const handleAddToGroup = () => {
-        toast.success("Item added to group!");
-        setIsMoreModalOpen(false);
-        // Add your add to group logic here
+    const handleCloneItem = async () => {
+        const payload = {
+            action: "clone_item", // Ensure this is included
+            id: selectedItem.id, // Ensure selectedItem is defined and has an id
+        };
+    
+        console.log("Sending payload:", payload); // Log the payload
+    
+        const response = await fetch("http://localhost/API/addItem.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+    
+        const data = await response.json();
+        console.log("Response from server:", data); // Log the response
+    
+        if (data.success) {
+            toast.success("Item cloned successfully!");
+            setIsMoreModalOpen(false);
+        } else {
+            toast.error(data.error);
+        }
+    };
+
+    const handleMarkAsInactive = async () => {
+        const payload = {
+            action: "mark_as_inactive", // Ensure this is included
+            id: selectedItem.id, // Ensure selectedItem is defined and has an id
+        };
+    
+        console.log("Sending payload:", payload); // Log the payload
+    
+        const response = await fetch("http://localhost/API/addItem.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+    
+        const data = await response.json();
+        console.log("Response from server:", data); // Log the response
+    
+        if (data.success) {
+            toast.success("Item marked as inactive!");
+            setIsMoreModalOpen(false);
+        } else {
+            toast.error(data.error);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (window.confirm(`Are you sure you want to delete ${selectedItem.name}?`)) {
+            const payload = {
+                action: "delete_item", // Ensure this is included
+                id: selectedItem.id, // Ensure selectedItem is defined and has an id
+            };
+    
+            console.log("Sending payload:", payload); // Log the payload
+    
+            const response = await fetch("http://localhost/API/addItem.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            const data = await response.json();
+            console.log("Response from server:", data); // Log the response
+    
+            if (data.success) {
+                toast.success("Item deleted successfully!");
+                setSelectedItem(null);
+                setIsMoreModalOpen(false);
+            } else {
+                toast.error(data.error);
+            }
+        }
+    };
+
+    const handleAddToGroup = async () => {
+        const groupId = prompt("Enter the group ID:"); // Prompt the user for the group ID
+        if (groupId) {
+            const payload = {
+                action: "add_to_group", // Ensure this is included
+                id: selectedItem.id, // Ensure selectedItem is defined and has an id
+                groupId: groupId, // Include the group ID
+            };
+    
+            console.log("Sending payload:", payload); // Log the payload
+    
+            const response = await fetch("http://localhost/API/addItem.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            const data = await response.json();
+            console.log("Response from server:", data); // Log the response
+    
+            if (data.success) {
+                toast.success("Item added to group successfully!");
+                setIsMoreModalOpen(false);
+            } else {
+                toast.error(data.error);
+            }
+        }
     };
 
     const handleCheckboxChange = (item) => {
@@ -118,23 +269,51 @@ export default function InventoryPage() {
         }));
     };
 
-    const handleAddItemSubmit = (e) => {
+    const handleAddItemSubmit = async (e) => {
         e.preventDefault();
-        // Add the new item to the products array
-        setProducts((prevProducts) => [...prevProducts, newItem]);
-        toast.success("Item added successfully!");
-        setIsAddItemModalOpen(false); // Close the modal
-        // Reset the new item form
-        setNewItem({
-            name: "",
-            category: "",
-            type: "",
-            stockQty: 0,
-            service: "",
-            description: "",
-            unitPrice: 0,
-            supplier: "",
-        });
+
+        try {
+            // Send a POST request to add the new item
+            const response = await fetch("http://localhost/API/addItem.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newItem),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Refetch the updated list of products
+                const res = await fetch("http://localhost/API/getInventory.php?action=get_products");
+                const updatedProducts = await res.json();
+
+                // Update the products state with the new data
+                setProducts(updatedProducts);
+
+                // Show success message
+                toast.success("Item added successfully!");
+
+                // Close the modal and reset the form
+                setIsAddItemModalOpen(false);
+                setNewItem({
+                    name: "",
+                    category: "",
+                    type: "",
+                    stockQty: 0,
+                    service: "",
+                    description: "",
+                    unitPrice: 0,
+                    supplier: "",
+                });
+            } else {
+                toast.error(data.error);
+            }
+        } catch (error) {
+            toast.error("Error adding item.");
+            console.error("Error adding item:", error);
+        }
     };
 
     const handleLogout = () => {
@@ -184,7 +363,7 @@ export default function InventoryPage() {
             </header>
 
             <div className="flex flex-1">
-            <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
+                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
                     <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
 
                     <Menu as="div" className="relative w-full px-4 mt-4">
@@ -292,48 +471,7 @@ export default function InventoryPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {[
-                                    {
-                                        name: "Loreal Paris Elvive",
-                                        category: "Hair Product",
-                                        type: "Hair Services",
-                                        stockQty: 45,
-                                        service: "Hair Treatment",
-                                        description: "Professional hair care product",
-                                        unitPrice: 395,
-                                        supplier: "James"
-                                    },
-                                    {
-                                        name: "GiGi Honee Wax",
-                                        category: "Skincare Product",
-                                        type: "Underarm Services",
-                                        stockQty: 56,
-                                        service: "Waxing Service",
-                                        description: "Professional waxing product",
-                                        unitPrice: 18.50,
-                                        supplier: "SkinCare Solutions"
-                                    },
-                                    {
-                                        name: "Kerazon Brazilian Hair",
-                                        category: "Hair Product",
-                                        type: "Hair Services",
-                                        stockQty: 56,
-                                        service: "Hair Extension",
-                                        description: "High-quality Brazilian hair",
-                                        unitPrice: 120.00,
-                                        supplier: "Hair World"
-                                    },
-                                    {
-                                        name: "Majestic Hair Botox",
-                                        category: "Hair Product",
-                                        type: "Hair Services",
-                                        stockQty: 56,
-                                        service: "Hair Treatment",
-                                        description: "Professional hair botox treatment",
-                                        unitPrice: 85.00,
-                                        supplier: "Luxury Hair Care"
-                                    },
-                                ].map((item, index) => (
+                                {products.map((item, index) => (
                                     <tr
                                         key={index}
                                         className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}
@@ -423,7 +561,7 @@ export default function InventoryPage() {
                                 </tbody>
                             </table>
                             <div className="flex justify-end space-x-2 mt-4">
-                                
+
                             </div>
                         </div>
                     )}
@@ -444,7 +582,7 @@ export default function InventoryPage() {
                                         name="name"
                                         value={newItem.name}
                                         onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-100 text-gray-900 border border-lime-300"
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
                                         required
                                     />
                                 </div>
@@ -455,7 +593,7 @@ export default function InventoryPage() {
                                         name="category"
                                         value={newItem.category}
                                         onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-100 text-gray-900 border border-lime-300"
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
                                         required
                                     />
                                 </div>
@@ -466,7 +604,7 @@ export default function InventoryPage() {
                                         name="type"
                                         value={newItem.type}
                                         onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-100 text-gray-900 border border-lime-300"
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
                                         required
                                     />
                                 </div>
@@ -477,7 +615,7 @@ export default function InventoryPage() {
                                         name="stockQty"
                                         value={newItem.stockQty}
                                         onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-100 text-gray-900 border border-lime-300"
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
                                         required
                                     />
                                 </div>
@@ -488,7 +626,7 @@ export default function InventoryPage() {
                                         name="unitPrice"
                                         value={newItem.unitPrice}
                                         onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-100 text-gray-900 border border-lime-300"
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
                                         required
                                     />
                                 </div>
@@ -499,7 +637,7 @@ export default function InventoryPage() {
                                         name="supplier"
                                         value={newItem.supplier}
                                         onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-100 text-gray-900 border border-lime-300"
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
                                         required
                                     />
                                 </div>
@@ -589,6 +727,99 @@ export default function InventoryPage() {
                         >
                             Close
                         </button>
+                    </Dialog.Panel>
+                </Dialog>
+            )}
+
+            {isModalOpen && modalType === "edit" && (
+                <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <Dialog.Panel className="bg-white p-6 rounded-lg shadow-xl w-96">
+                        <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">Edit Item</Dialog.Title>
+                        <form onSubmit={handleEditSubmit}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={selectedItem?.name || ""}
+                                        onChange={(e) => setSelectedItem({ ...selectedItem, name: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                                    <input
+                                        type="text"
+                                        name="category"
+                                        value={selectedItem?.category || ""}
+                                        onChange={(e) => setSelectedItem({ ...selectedItem, category: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Type</label>
+                                    <input
+                                        type="text"
+                                        name="type"
+                                        value={selectedItem?.type || ""}
+                                        onChange={(e) => setSelectedItem({ ...selectedItem, type: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Stock Quantity</label>
+                                    <input
+                                        type="number"
+                                        name="stockQty"
+                                        value={selectedItem?.stockQty || 0}
+                                        onChange={(e) => setSelectedItem({ ...selectedItem, stockQty: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Unit Price</label>
+                                    <input
+                                        type="number"
+                                        name="unitPrice"
+                                        value={selectedItem?.unitPrice || 0}
+                                        onChange={(e) => setSelectedItem({ ...selectedItem, unitPrice: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Supplier</label>
+                                    <input
+                                        type="text"
+                                        name="supplier"
+                                        value={selectedItem?.supplier || ""}
+                                        onChange={(e) => setSelectedItem({ ...selectedItem, supplier: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-end space-x-2 mt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-[#5BBF5B] text-white rounded hover:bg-[#4CAF4C]"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
                     </Dialog.Panel>
                 </Dialog>
             )}

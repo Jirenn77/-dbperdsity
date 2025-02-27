@@ -77,25 +77,39 @@ export default function ProductCategoryPage() {
         setIsModalOpen(false);
     };
 
-    const handleAddCategorySubmit = (e) => {
+    const handleAddCategorySubmit = async (e) => {
         e.preventDefault();
-        // Add the new category to the categories array
-        setCategories((prev) => [...prev, newCategory]);
-        toast.success("Category added successfully!");
-        setIsAddCategoryModalOpen(false); // Close the modal
-        // Reset the form
-        setNewCategory({
-            name: "",
-            description: "",
-            products: "0 Active Services",
-            status: "Active",
-            serviceLink: "",
-        });
+        try {
+            const response = await fetch('http://localhost/API/addcategory.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCategory),
+            });
+            const result = await response.json();
+            if (response.ok) {
+                setCategories((prev) => [...prev, newCategory]);
+                toast.success(result.message);
+                setIsAddCategoryModalOpen(false);
+                setNewCategory({
+                    name: "",
+                    description: "",
+                    products: "0 Active Services",
+                    status: "Active",
+                    serviceLink: "",
+                });
+            } else {
+                toast.error(result.message);
+            }
+        } catch (error) {
+            toast.error("Failed to add category.");
+        }
     };
 
     const handleLogout = () => {
         localStorage.removeItem("authToken");
-        window.location.href = "/";
+        window.location.href = "/home";
     };
 
     return (
@@ -300,19 +314,19 @@ export default function ProductCategoryPage() {
                                     type="text"
                                     value={selectedCategory?.name || ""}
                                     onChange={(e) => setSelectedCategory({ ...selectedCategory, name: e.target.value })}
-                                    className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                    className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                 />
                                 <label className="block text-sm font-medium">Description</label>
                                 <textarea
                                     value={selectedCategory?.description || ""}
                                     onChange={(e) => setSelectedCategory({ ...selectedCategory, description: e.target.value })}
-                                    className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                    className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                 ></textarea>
                                 <label className="block text-sm font-medium">Status</label>
                                 <select
                                     value={selectedCategory?.status || "Active"}
                                     onChange={(e) => setSelectedCategory({ ...selectedCategory, status: e.target.value })}
-                                    className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                    className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                 >
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
@@ -322,9 +336,9 @@ export default function ProductCategoryPage() {
                                     type="text"
                                     value={selectedCategory?.serviceLink || ""}
                                     onChange={(e) => setSelectedCategory({ ...selectedCategory, serviceLink: e.target.value })}
-                                    className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                    className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                 />
-                                <button className="px-4 py-2 bg-gray-300 bg-lime-500 border border-lime-500 rounded-lg w-full mb-3">Edit Services</button>
+                                <button className="px-4 py-2 bg-gray-300 bg-lime-400 border border-lime-500 rounded-lg w-full mb-3">Edit Services</button>
                                 <div className="flex justify-between">
                                     <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={() => setIsModalOpen(false)}>
                                         Cancel
@@ -343,7 +357,7 @@ export default function ProductCategoryPage() {
                     {/* Add Category Modal */}
                     {isAddCategoryModalOpen && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                            <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg w-96">
+                            <div className="bg-white bg-opacity-85 p-6 rounded-lg shadow-lg w-96">
                                 <h2 className="text-lg font-bold mb-4">Add New Category</h2>
                                 <form onSubmit={handleAddCategorySubmit}>
                                     <label className="block text-sm font-medium">Category Name</label>
@@ -352,7 +366,7 @@ export default function ProductCategoryPage() {
                                         name="name"
                                         value={newCategory.name}
                                         onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                                        className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                        className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                         required
                                     />
                                     <label className="block text-sm font-medium">Description</label>
@@ -360,7 +374,7 @@ export default function ProductCategoryPage() {
                                         name="description"
                                         value={newCategory.description}
                                         onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                                        className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                        className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                         required
                                     ></textarea>
                                     <label className="block text-sm font-medium">Status</label>
@@ -368,7 +382,7 @@ export default function ProductCategoryPage() {
                                         name="status"
                                         value={newCategory.status}
                                         onChange={(e) => setNewCategory({ ...newCategory, status: e.target.value })}
-                                        className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                        className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                     >
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
@@ -379,7 +393,7 @@ export default function ProductCategoryPage() {
                                         name="serviceLink"
                                         value={newCategory.serviceLink}
                                         onChange={(e) => setNewCategory({ ...newCategory, serviceLink: e.target.value })}
-                                        className="w-full px-3 py-2 border bg-lime-100 border border-lime-300 rounded-lg mb-3"
+                                        className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
                                     />
                                     <div className="flex justify-between">
                                         <button

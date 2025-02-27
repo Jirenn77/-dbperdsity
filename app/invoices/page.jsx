@@ -73,35 +73,40 @@ export default function InvoicesPage() {
     <div className="flex flex-col h-screen bg-[#77DD77] text-gray-900">
       <Toaster />
       <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-        <div className="flex items-center space-x-4">
-          <Link href="/home">
-            <button className="text-2xl">🏠</button>
-          </Link>
-        </div>
-        <div className="flex items-center space-x-4 flex-grow justify-center">
-          <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-            ➕
-          </button>
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
-          />
-          <button onClick={handleSearch} className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm">
-            Search
-          </button>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Link href="/acc-settings">
-            <button className="text-xl">⚙️</button>
-          </Link>
-          <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
-            A
-          </div>
-        </div>
-      </header>
+                <div className="flex items-center space-x-4">
+                    <Link href="/home">
+                        <button className="text-2xl">🏠</button>
+                    </Link>
+                </div>
+
+                <div className="flex items-center space-x-4 flex-grow justify-center">
+                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+                        ➕
+                    </button>
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
+                    />
+                    <button
+                        onClick={handleSearch}
+                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm"
+                    >
+                        Search
+                    </button>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                    <Link href="/acc-settings">
+                        <button className="text-xl">⚙️</button>
+                    </Link>
+                    <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
+                        A
+                    </div>
+                </div>
+            </header>
       <div className="flex flex-1">
         {/* Sidebar */}
         <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">

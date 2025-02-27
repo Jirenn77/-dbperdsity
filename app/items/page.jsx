@@ -123,9 +123,10 @@ export default function ServiceItemGroups() {
                     </Link>
                 </div>
 
-                {/* Search Bar */}
                 <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl">➕</button>
+                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+                        ➕
+                    </button>
                     <input
                         type="text"
                         placeholder="Search..."
@@ -150,6 +151,7 @@ export default function ServiceItemGroups() {
                     </div>
                 </div>
             </header>
+
 
             <div className="flex flex-1">
                 {/* Sidebar */}

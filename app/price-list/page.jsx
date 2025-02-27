@@ -79,17 +79,15 @@ export default function PriceList() {
 
             {/* Header */}
             <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                {/* Left section: Home and Account Settings buttons */}
                 <div className="flex items-center space-x-4">
                     <Link href="/home">
-                        <button className="text-2xl">🏠</button>
+                        <Home className="w-7 h-7 text-gray-900 cursor-pointer" />
                     </Link>
                 </div>
 
-                {/* Center section: Modal button, Search bar, and Search button */}
                 <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-                        ➕
+                    <button onClick={() => setIsModalOpen(true)}>
+                        <Plus className="w-7 h-7 text-gray-900" />
                     </button>
                     <input
                         type="text"
@@ -100,16 +98,15 @@ export default function PriceList() {
                     />
                     <button
                         onClick={handleSearch}
-                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm"
+                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] font-normal text-gray-900"
                     >
                         Search
                     </button>
                 </div>
 
-                {/* Right section: User icon */}
                 <div className="flex items-center space-x-4">
                     <Link href="/acc-settings">
-                        <button className="text-xl">⚙️</button>
+                        <Settings className="w-7 h-7 text-gray-900" />
                     </Link>
                     <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
                         A
@@ -274,7 +271,7 @@ export default function PriceList() {
 
                     {editItem && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                            <div className="bg-[#66C466] p-6 rounded-lg shadow-lg w-[90%] max-w-xl">
+                            <div className="bg-white bg-opacity-85 p-6 rounded-lg shadow-lg w-[90%] max-w-xl">
                                 <h2 className="text-lg font-bold mb-4">Edit Price List</h2>
                                 <div className="space-y-4">
                                     <div>
@@ -283,7 +280,7 @@ export default function PriceList() {
                                             type="text"
                                             value={editItem.name}
                                             onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+                                            className="w-full px-4 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400 focus:outline-none"
                                         />
                                     </div>
                                     <div className="flex space-x-4">
@@ -315,21 +312,21 @@ export default function PriceList() {
                                         <textarea
                                             value={editItem.description}
                                             onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+                                            className="w-full px-4 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400 focus:outline-none"
                                         />
                                     </div>
                                     <div>
                                         <label className="block font-medium mb-1">Percentage*</label>
                                         <div className="flex items-center space-x-2">
                                             <select
-                                                className="px-3 py-2 border rounded-lg focus:outline-none"
+                                                className="px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400 focus:outline-none"
                                             >
                                                 <option value="Markdown">Markdown</option>
                                                 <option value="Markup">Markup</option>
                                             </select>
                                             <input
                                                 type="number"
-                                                className="px-3 py-2 border rounded-lg w-full focus:outline-none"
+                                                className="px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400 w-full focus:outline-none"
                                                 placeholder="%"
                                             />
                                         </div>
@@ -337,7 +334,7 @@ export default function PriceList() {
                                     <div>
                                         <label className="block font-medium mb-1">Round Off To*</label>
                                         <select
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+                                            className="w-full px-4 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400 focus:outline-none"
                                         >
                                             <option>Nevermind</option>
                                             <option>Nearest Whole Number</option>

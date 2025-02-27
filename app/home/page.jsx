@@ -148,13 +148,13 @@ export default function Dashboard() {
             <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
                 <div className="flex items-center space-x-4">
                     <Link href="/home">
-                        <Home className="w-7 h-7 text-gray-900 cursor-pointer" />
+                        <button className="text-2xl">🏠</button>
                     </Link>
                 </div>
 
                 <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button onClick={() => setIsModalOpen(true)}>
-                        <Plus className="w-7 h-7 text-gray-900" />
+                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+                        ➕
                     </button>
                     <input
                         type="text"
@@ -165,7 +165,7 @@ export default function Dashboard() {
                     />
                     <button
                         onClick={handleSearch}
-                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] font-normal text-gray-900"
+                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-gray-800 text-md"
                     >
                         Search
                     </button>
@@ -173,7 +173,7 @@ export default function Dashboard() {
 
                 <div className="flex items-center space-x-4">
                     <Link href="/acc-settings">
-                        <Settings className="w-7 h-7 text-gray-900" />
+                        <button className="text-xl">⚙️</button>
                     </Link>
                     <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
                         A
