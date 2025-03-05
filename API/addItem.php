@@ -12,6 +12,15 @@ error_log("Raw input data: " . $rawData); // Log the raw input data
 
 // Decode the JSON data
 $data = json_decode($rawData, true);
+
+// Check if JSON decoding failed
+if (json_last_error() !== JSON_ERROR_NONE) {
+    error_log("Invalid JSON data received: " . json_last_error_msg());
+    error_log("Raw input data: " . $rawData); // Log the raw input data for debugging
+    echo json_encode(['error' => 'Invalid JSON data: ' . json_last_error_msg()]);
+    exit();
+}
+
 error_log("Decoded data: " . print_r($data, true)); // Log the decoded data
 
 // Check if the action parameter is present
@@ -25,68 +34,69 @@ if (!isset($data['action'])) {
 $action = $data['action'];
 error_log("Extracted action: " . $action); // Log the extracted action
 
-
 try {
     switch ($action) {
         case 'add_item':
-            // Add a new item
-            $name = $data['name'];
-            $category = $data['category'];
-            $type = $data['type'];
-            $stockQty = $data['stockQty'];
-            $service = $data['service'];
-            $description = $data['description'];
-            $unitPrice = $data['unitPrice'];
-            $supplier = $data['supplier'];
+            // Validate required fields for adding an item
+            $requiredFields = ['name', 'category', 'type', 'stockQty', 'service', 'description', 'unitPrice', 'supplier'];
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field])) {
+                    echo json_encode(['error' => "Missing required field: $field"]);
+                    exit();
+                }
+            }
 
+            // Add a new item
             $stmt = $conn->prepare("INSERT INTO items (name, category, type, stockQty, service, description, unitPrice, supplier) VALUES (:name, :category, :type, :stockQty, :service, :description, :unitPrice, :supplier)");
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':category', $category);
-            $stmt->bindParam(':type', $type);
-            $stmt->bindParam(':stockQty', $stockQty);
-            $stmt->bindParam(':service', $service);
-            $stmt->bindParam(':description', $description);
-            $stmt->bindParam(':unitPrice', $unitPrice);
-            $stmt->bindParam(':supplier', $supplier);
+            $stmt->bindParam(':name', $data['name']);
+            $stmt->bindParam(':category', $data['category']);
+            $stmt->bindParam(':type', $data['type']);
+            $stmt->bindParam(':stockQty', $data['stockQty']);
+            $stmt->bindParam(':service', $data['service']);
+            $stmt->bindParam(':description', $data['description']);
+            $stmt->bindParam(':unitPrice', $data['unitPrice']);
+            $stmt->bindParam(':supplier', $data['supplier']);
             $stmt->execute();
 
             echo json_encode(['success' => 'Item added successfully']);
             break;
 
-        case 'update_item':
-            // Update an existing item
-            $id = $data['id'];
-            $name = $data['name'];
-            $category = $data['category'];
-            $type = $data['type'];
-            $stockQty = $data['stockQty'];
-            $service = $data['service'];
-            $description = $data['description'];
-            $unitPrice = $data['unitPrice'];
-            $supplier = $data['supplier'];
+        case 'edit_item':
+            // Validate required fields for editing an item
+            $requiredFields = ['id', 'name', 'category', 'type', 'stockQty', 'service', 'description', 'unitPrice', 'supplier'];
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field])) {
+                    echo json_encode(['error' => "Missing required field: $field"]);
+                    exit();
+                }
+            }
 
+            // Update the item
             $stmt = $conn->prepare("UPDATE items SET name = :name, category = :category, type = :type, stockQty = :stockQty, service = :service, description = :description, unitPrice = :unitPrice, supplier = :supplier WHERE id = :id");
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':category', $category);
-            $stmt->bindParam(':type', $type);
-            $stmt->bindParam(':stockQty', $stockQty);
-            $stmt->bindParam(':service', $service);
-            $stmt->bindParam(':description', $description);
-            $stmt->bindParam(':unitPrice', $unitPrice);
-            $stmt->bindParam(':supplier', $supplier);
+            $stmt->bindParam(':id', $data['id']);
+            $stmt->bindParam(':name', $data['name']);
+            $stmt->bindParam(':category', $data['category']);
+            $stmt->bindParam(':type', $data['type']);
+            $stmt->bindParam(':stockQty', $data['stockQty']);
+            $stmt->bindParam(':service', $data['service']);
+            $stmt->bindParam(':description', $data['description']);
+            $stmt->bindParam(':unitPrice', $data['unitPrice']);
+            $stmt->bindParam(':supplier', $data['supplier']);
             $stmt->execute();
 
             echo json_encode(['success' => 'Item updated successfully']);
             break;
 
         case 'clone_item':
-            // Clone an existing item
-            $id = $data['id'];
+            // Validate required fields for cloning an item
+            if (!isset($data['id'])) {
+                echo json_encode(['error' => 'Missing required field: id']);
+                exit();
+            }
 
-            // Fetch the item to clone
+            // Clone an existing item
             $stmt = $conn->prepare("SELECT * FROM items WHERE id = :id");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $data['id']);
             $stmt->execute();
             $item = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -110,35 +120,49 @@ try {
             break;
 
         case 'mark_as_inactive':
-            // Mark an item as inactive
-            $id = $data['id'];
+            // Validate required fields for marking an item as inactive
+            if (!isset($data['id'])) {
+                echo json_encode(['error' => 'Missing required field: id']);
+                exit();
+            }
 
+            // Mark an item as inactive
             $stmt = $conn->prepare("UPDATE items SET status = 'inactive' WHERE id = :id");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $data['id']);
             $stmt->execute();
 
             echo json_encode(['success' => 'Item marked as inactive']);
             break;
 
         case 'delete_item':
-            // Delete an item
-            $id = $data['id'];
+            // Validate required fields for deleting an item
+            if (!isset($data['id'])) {
+                echo json_encode(['error' => 'Missing required field: id']);
+                exit();
+            }
 
+            // Delete an item
             $stmt = $conn->prepare("DELETE FROM items WHERE id = :id");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $data['id']);
             $stmt->execute();
 
             echo json_encode(['success' => 'Item deleted successfully']);
             break;
 
         case 'add_to_group':
-            // Add an item to a group
-            $id = $data['id'];
-            $groupId = $data['groupId'];
+            // Validate required fields for adding an item to a group
+            $requiredFields = ['id', 'groupId'];
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field])) {
+                    echo json_encode(['error' => "Missing required field: $field"]);
+                    exit();
+                }
+            }
 
+            // Add an item to a group
             $stmt = $conn->prepare("UPDATE items SET group_id = :groupId WHERE id = :id");
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':groupId', $groupId);
+            $stmt->bindParam(':id', $data['id']);
+            $stmt->bindParam(':groupId', $data['groupId']);
             $stmt->execute();
 
             echo json_encode(['success' => 'Item added to group successfully']);
@@ -149,6 +173,7 @@ try {
             break;
     }
 } catch (PDOException $e) {
+    error_log("Database error: " . $e->getMessage()); // Log the database error
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }
 ?>

@@ -1,6 +1,7 @@
 <?php
 
-require_once 'getBalance.php';
+// Include your database connection file
+include 'dp.php'; // Ensure dp.php exists and has a valid PDO connection
 
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
@@ -23,73 +24,55 @@ if (!isset($data['email'], $data['password'])) {
     exit;
 }
 
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-
-    if ($action === 'login') {
-        login($pdo, $data);
-    } elseif ($action === 'register') {
-        register($pdo, $data);
-    } else {
-        echo json_encode(['error' => 'Invalid action']);
-    }
-} else {
-    echo json_encode(['error' => 'Action parameter is missing']);
-}
-
 // Login function
 function login($pdo, $data) {
-    if (!isset($data['email'], $data['password'])) {
-        echo json_encode(['error' => 'Missing parameters', 'received' => $data]);
-        return;
+    if (isset($data['email'], $data['password'])) {
+        $email = $data['email'];
+        $password = $data['password'];
+
+        // Check in the users table
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user) {
+            if ($user['password'] === $password) {
+                unset($user['password']);
+                $user['role'] = 'customer'; // Assume role is customer
+                echo json_encode($user);
+                return;
+            } else {
+                echo json_encode(['error' => 'Invalid email or password']);
+            }
+        } else {
+            echo json_encode(['error' => 'User not found']);
+        }
+
+        // Check in the admin table
+        $adminStmt = $pdo->prepare("SELECT * FROM admin WHERE email = ?");
+        $adminStmt->execute([$email]);
+        $admin = $adminStmt->fetch();
+
+        if ($admin) {
+            if ($admin['password'] === $password) {
+                unset($admin['password']);
+                echo json_encode($admin);
+                return;
+            } else {
+                echo json_encode(['error' => 'Invalid email or password']);
+            }
+        } else {
+            echo json_encode(['error' => 'Admin not found']);
+        }
+    } else {
+        echo json_encode(['error' => 'Missing parameters']);
     }
-
-    $email = $data['email'];
-    $password = $data['password'];
-
-    // Check users table
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    // Log user data for debugging
-    error_log("User data from users table: " . print_r($user, true));
-
-    if ($user && password_verify($password, $user['password'])) {
-        unset($user['password']); // Remove password from response
-        echo json_encode([
-            'success' => 'Login successful',
-            'user' => $user,
-            'redirectTo' => 'home.php' // Add this to redirect
-        ]);
-        return;
-    }
-
-    // Check admin table
-    $adminStmt = $pdo->prepare("SELECT * FROM admin WHERE email = ?");
-    $adminStmt->execute([$email]);
-    $admin = $adminStmt->fetch();
-
-    // Log admin data for debugging
-    error_log("Admin data from admin table: " . print_r($admin, true));
-
-    if ($admin && password_verify($password, $admin['password'])) {
-        unset($admin['password']); // Remove password from response
-        echo json_encode([
-            'success' => 'Admin login successful',
-            'admin' => $admin,
-            'redirectTo' => 'admin_dashboard.php' // Redirect to admin dashboard
-        ]);
-        return;
-    }
-
-    echo json_encode(['error' => 'Invalid email or password']);
 }
 
 // Register function
 function register($pdo, $data) {
     if (!isset($data['email'], $data['password'], $data['role'])) {
-        echo json_encode(['error' => 'Missing parameters', 'received' => $data]);
+        echo json_encode(['error' => 'Missing parameters']);
         return;
     }
 
@@ -111,3 +94,14 @@ function register($pdo, $data) {
         echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
     }
 }
+
+if (isset($_GET['action'])) {
+    $action = $_GET['action'] ?? null;
+
+    if ($action == 'login') {
+        login($pdo, $data);
+    } elseif ($action == 'register') {
+        register($pdo, $data);
+    }
+}
+?>
