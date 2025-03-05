@@ -21,8 +21,8 @@ export default function Login() {
     }, []);
 
     const generateCaptcha = () => {
-        let num1 = Math.floor(Math.random() * 90) + 10;
-        let num2 = Math.floor(Math.random() * 90) + 10;
+        let num1 = Math.floor(Math.random() * 10); 
+        let num2 = Math.floor(Math.random() * 10); 
         setCorrectCaptchaAnswer(num1 + num2);
         setCaptchaQuestion(`${num1} + ${num2} = ?`);
     };
@@ -58,7 +58,7 @@ export default function Login() {
 
         try {
             const res = await axios.post(
-                "http://localhost/API/getBalance.php?action=login",
+                "https://localhost/API/getBalance.php?action=login",
                 new URLSearchParams({ email: sanitizedEmail, password })
             );
 

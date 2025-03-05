@@ -6,8 +6,9 @@ import { Toaster, toast } from "sonner";
 import { Dialog } from "@headlessui/react";
 import { Menu } from "@headlessui/react";
 import { BarChart } from "lucide-react";
+import { User, Settings, LogOut } from "lucide-react";
 import { Folder, ClipboardList, Factory, ShoppingBag } from "lucide-react";
-import { Home, Users, FileText, CreditCard, Package, Layers, ShoppingCart, Settings, LogOut, Plus } from "lucide-react";
+import { Home, Users, FileText, CreditCard, Package, Layers, ShoppingCart, Plus } from "lucide-react";
 
 const navLinks = [
     { href: "/servicess", label: "Services", icon: Layers },
@@ -29,6 +30,7 @@ export default function Dashboard() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -141,167 +143,197 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-gradient-to-b from-[#77DD77] to-[#CFFFCF] text-gray-900">
+        <div className="flex flex-col h-screen bg-white text-gray-900">
             <Toaster />
-
             {/* Header */}
-            <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                <div className="flex items-center space-x-4">
-                    <Link href="/home">
-                        <button className="text-2xl">🏠</button>
-                    </Link>
-                </div>
+<header className="flex items-center justify-between bg-[#89C07E] text-white p-4 w-full h-16 pl-64 relative">
+    <div className="flex items-center space-x-4">
+        {/* Home icon removed from here */}
+    </div>
 
-                <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-                        ➕
+    <div className="flex items-center space-x-4 flex-grow justify-center">
+        <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+            ➕
+        </button>
+        <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
+        />
+        <button
+            onClick={handleSearch}
+            className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-gray-800 text-md"
+        >
+            Search
+        </button>
+    </div>
+
+    <div className="flex items-center space-x-4 relative">
+        <div 
+            className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold cursor-pointer"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+        >
+            A
+        </div>
+        {isProfileOpen && (
+            <div className="bg-[#6CAE5E] absolute top-12 right-0 text-white shadow-lg rounded-lg w-48 p-2 flex flex-col animate-fade-in text-start">
+                <Link href="/acc-settings">
+                <button className="flex items-center gap-2 px-4 py-2 hover:bg-[#467750] rounded w-full justify-start">
+                    <User size={16} /> Edit Profile
+                </button>
+                </Link>
+                <Link href="/settings">
+                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-[#467750] rounded w-full justify-start">
+                        <Settings size={16} /> Settings
                     </button>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
-                    />
-                    <button
-                        onClick={handleSearch}
-                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-gray-800 text-md"
-                    >
-                        Search
-                    </button>
+                </Link>
+                <button className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded justify-start" onClick={handleLogout}>
+                    <LogOut size={16} /> Logout
+                </button>
+            </div>
+        )}
+    </div>
+</header>
+
+{/* Sidebar */}
+<div className="flex flex-1">
+    <nav className="w-64 h-screen bg-gradient-to-b from-[#467750] to-[#56A156] text-gray-900 flex flex-col items-center py-6 fixed top-0 left-0">
+        <div className="flex items-center space-x-2 mb-4">
+            <h1 className="text-xl font-bold text-white flex items-center space-x-2">
+                <span>Lizly Skin Care Clinic</span>
+            </h1>
+        </div>
+
+        {/* Home Menu Button */}
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Link href="/home" passHref>
+                <Menu.Button as="div" className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center cursor-pointer">
+                    <Home className="text-2xl"></Home>
+                    <span className="ml-2">Dashboard</span>
+                </Menu.Button>
+            </Link>
+        </Menu>
+
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <ShoppingCart className="mr-2" size={20} /> POS ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
+                    { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
+                    { href: "/items", label: "Service Groups", icon: <Package size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
+
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <BarChart className="mr-2" size={20} /> Sales ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/customers", label: "Customers", icon: <Users size={20} /> },
+                    { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
+                    { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
+
+        {/* Inventory Menu */}
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <Package className="mr-2" size={20} /> Inventory ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/products", label: "Products", icon: <Package size={20} /> },
+                    { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
+                    { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
+                    { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
+                    { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
+    </nav>
+
+                <main className="flex-1 p-8 max-w-screen-xl mx-auto ml-64">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Product Details */}
+        <div className="p-6 bg-white rounded-lg shadow-md border border-gray-400">
+            <h2 className="text-lg font-bold mb-4">Product Details</h2>
+            <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <p className={`text-2xl ${productDetails.lowStockItems < 10 ? 'text-red-600' : 'text-blue-600'}`}>
+                        {productDetails.lowStockItems}
+                    </p>
+                    <p className="text-sm">LOW STOCK ITEMS</p>
                 </div>
-
-                <div className="flex items-center space-x-4">
-                    <Link href="/acc-settings">
-                        <button className="text-xl">⚙️</button>
-                    </Link>
-                    <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
-                        A
-                    </div>
+                <div>
+                <p className={`text-xl ${inventorySummary.quantityInHand < 10 ? 'text-red-600' : 'text-blue-600'}`}>
+                        {inventorySummary.quantityInHand}
+                    </p>
+                    <p className="text-sm">ALL ITEMS GROUPS</p>
                 </div>
-            </header>
+                <div>
+                <p className={`text-xl ${inventorySummary.quantityInHand < 10 ? 'text-red-600' : 'text-blue-600'}`}>
+                        {inventorySummary.quantityInHand}
+                    </p>
+                    <p className="text-sm">ALL ITEMS</p>
+                </div>
+            </div>
+        </div>
 
-            <div className="flex flex-1">
-                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
-                    <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
+        {/* Inventory Summary */}
+        <div className="p-6 bg-white rounded-lg shadow-md border border-gray-400">
+            <h2 className="text-lg font-bold mb-4">Inventory Summary</h2>
+            <div className="grid grid-rows-2 gap-4">
+                <div className="flex justify-between">
+                    <p className="text-sm">QUANTITY IN HAND</p>
+                    <p className={`text-xl ${inventorySummary.quantityInHand < 10 ? 'text-red-600' : 'text-blue-600'}`}>
+                        {inventorySummary.quantityInHand}
+                    </p>
+                </div>
+                <div className="flex justify-between">
+                    <p className="text-sm">QUANTITY TO BE RECEIVED</p>
+                    <p className={`text-xl ${inventorySummary.quantityToBeReceived < 10 ? 'text-red-600' : 'text-blue-600'}`}>
+                        {inventorySummary.quantityToBeReceived}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <ShoppingCart className="mr-2" size={20} /> POS ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
-                                { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
-                                { href: "/items", label: "Item Groups", icon: <Package size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <BarChart className="mr-2" size={20} /> Sales ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/customers", label: "Customers", icon: <Users size={20} /> },
-                                { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
-                                { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-
-
-                    {/* Inventory Menu */}
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <Package className="mr-2" size={20} /> Inventory ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/products", label: "Products", icon: <Package size={20} /> },
-                                { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
-                                { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
-                                { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
-                                { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-
-                    <Link
-                        href="#"
-                        onClick={handleLogout}
-                        className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
-                    >
-                        <LogOut size={20} />
-                        <span className="ml-2 font-semibold">Logout</span>
-                    </Link>
-                </nav>
-
-                <main className="flex-1 p-8 max-w-screen-xl mx-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Product Details */}
-                        <div className="p-6 bg-white rounded-lg shadow">
-                            <h2 className="text-lg font-bold mb-4">Product Details</h2>
-                            <div className="grid grid-cols-3 gap-4 text-center">
-                                <div>
-                                    <p className="text-2xl text-blue-600">{productDetails.lowStockItems}</p>
-                                    <p className="text-sm">LOW STOCK ITEMS</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl text-blue-600">{productDetails.allItemsGroups}</p>
-                                    <p className="text-sm">ALL ITEMS GROUPS</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl text-blue-600">{productDetails.allItems}</p>
-                                    <p className="text-sm">ALL ITEMS</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Inventory Summary */}
-                        <div className="p-6 bg-white rounded-lg shadow">
-                            <h2 className="text-lg font-bold mb-4">Inventory Summary</h2>
-                            <div className="grid grid-rows-2 gap-4">
-                                <div className="flex justify-between">
-                                    <p className="text-sm">QUANTITY IN HAND</p>
-                                    <p className="text-xl text-blue-600">{inventorySummary.quantityInHand}</p>
-                                </div>
-                                <div className="flex justify-between">
-                                    <p className="text-sm">QUANTITY TO BE RECEIVED</p>
-                                    <p className="text-xl text-blue-600">{inventorySummary.quantityToBeReceived}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
             </div>
 
             {/* Modal */}

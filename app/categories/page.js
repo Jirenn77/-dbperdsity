@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
@@ -22,16 +22,50 @@ const salesLinks = [
 ];
 
 export default function ProductCategoryPage() {
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false); // New state for Add Category modal
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [services, setServices] = useState([]);
     const [categories, setCategories] = useState([
         { name: "Hair Products", description: "Description", products: "16 Active Services" },
         { name: "Body and Relaxing Products", description: "Description", products: "3 Active Services" },
         { name: "Diode Laser Products", description: "Description", products: "8 Active Services" },
         { name: "Nails and Foot Services", description: "Description", products: "6 Active Services" },
     ]);
+    const [newGroup, setNewGroup] = useState({
+        name: "",
+        description: "",
+        status: "active",
+        priceListAdjustment: "",
+        serviceLink: "",
+    });
+    const [groups, setGroups] = useState([
+        { name: "Hair Services", description: "16 Active Services" },
+        { name: "Body and Relaxing Services", description: "3 Active Services" },
+        { name: "Disode Lazer Services", description: "8 Active Services" },
+        { name: "Nails and Foot Services", description: "6 Active Services" },
+    ]);
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                const response = await fetch('http://localhost/API/category.php?action=get_services');
+                const data = await response.json();
+                if (response.ok) {
+                    setServices(data); // Set the services state
+                } else {
+                    toast.error("Failed to fetch services.");
+                }
+            } catch (error) {
+                toast.error("Error fetching services.");
+            }
+        };
+
+        fetchServices();
+    }, []);
+
     const [newCategory, setNewCategory] = useState({ // State for new category
         name: "",
         description: "",
@@ -117,132 +151,151 @@ export default function ProductCategoryPage() {
             <Toaster />
 
             {/* Header */}
-            <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                <div className="flex items-center space-x-4">
-                    <Link href="/home">
-                        <button className="text-2xl">🏠</button>
-                    </Link>
-                </div>
+<header className="flex items-center justify-between bg-[#89C07E] text-white p-4 w-full h-16 pl-64 relative">
+    <div className="flex items-center space-x-4">
+        {/* Home icon removed from here */}
+    </div>
 
-                <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-                        ➕
+    <div className="flex items-center space-x-4 flex-grow justify-center">
+        <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+            ➕
+        </button>
+        <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
+        />
+        <button
+            onClick={handleSearch}
+            className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-gray-800 text-md"
+        >
+            Search
+        </button>
+    </div>
+
+    <div className="flex items-center space-x-4 relative">
+        <div 
+            className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold cursor-pointer"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+        >
+            A
+        </div>
+        {isProfileOpen && (
+            <div className="bg-[#6CAE5E] absolute top-12 right-0 text-white shadow-lg rounded-lg w-48 p-2 flex flex-col animate-fade-in text-start">
+                <Link href="/acc-settings">
+                <button className="flex items-center gap-2 px-4 py-2 hover:bg-[#467750] rounded w-full justify-start">
+                    <User size={16} /> Edit Profile
+                </button>
+                </Link>
+                <Link href="/settings">
+                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-[#467750] rounded w-full justify-start">
+                        <Settings size={16} /> Settings
                     </button>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
-                    />
-                    <button
-                        onClick={handleSearch}
-                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm"
-                    >
-                        Search
-                    </button>
-                </div>
+                </Link>
+                <button className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded justify-start" onClick={handleLogout}>
+                    <LogOut size={16} /> Logout
+                </button>
+            </div>
+        )}
+    </div>
+</header>
 
-                <div className="flex items-center space-x-4">
-                    <Link href="/acc-settings">
-                        <button className="text-xl">⚙️</button>
-                    </Link>
-                    <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
-                        A
-                    </div>
-                </div>
-            </header>
+{/* Sidebar */}
+<div className="flex flex-1">
+    <nav className="w-64 h-screen bg-gradient-to-b from-[#467750] to-[#56A156] text-gray-900 flex flex-col items-center py-6 fixed top-0 left-0">
+        <div className="flex items-center space-x-2 mb-4">
+            <h1 className="text-xl font-bold text-white flex items-center space-x-2">
+                <span>Lizly Skin Care Clinic</span>
+            </h1>
+        </div>
 
-            <div className="flex flex-1">
-                {/* Sidebar */}
-                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
-                    <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
+        {/* Home Menu Button */}
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Link href="/home" passHref>
+                <Menu.Button as="div" className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center cursor-pointer">
+                    <Home className="text-2xl"></Home>
+                    <span className="ml-2">Dashboard</span>
+                </Menu.Button>
+            </Link>
+        </Menu>
 
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <ShoppingCart className="mr-2" size={20} /> POS ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
-                                { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
-                                { href: "/items", label: "Item Groups", icon: <Package size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <ShoppingCart className="mr-2" size={20} /> POS ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
+                    { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
+                    { href: "/items", label: "Service Groups", icon: <Package size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
 
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <BarChart className="mr-2" size={20} /> Sales ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/customers", label: "Customers", icon: <Users size={20} /> },
-                                { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
-                                { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <BarChart className="mr-2" size={20} /> Sales ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/customers", label: "Customers", icon: <Users size={20} /> },
+                    { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
+                    { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
 
-
-                    {/* Inventory Menu */}
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <Package className="mr-2" size={20} /> Inventory ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/products", label: "Products", icon: <Package size={20} /> },
-                                { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
-                                { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
-                                { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
-                                { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-
-                    <Link
-                        href="#"
-                        onClick={handleLogout}
-                        className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
-                    >
-                        <LogOut size={20} />
-                        <span className="ml-2 font-semibold">Logout</span>
-                    </Link>
-                </nav>
+        {/* Inventory Menu */}
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <Package className="mr-2" size={20} /> Inventory ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/products", label: "Products", icon: <Package size={20} /> },
+                    { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
+                    { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
+                    { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
+                    { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
+    </nav>
 
                 {/* Main Content */}
-                <main className="flex-1 p-8 bg-gradient-to-b from-[#77DD77] to-[#CFFFCF]">
+                <main className="flex-1 p-6 bg-white text-gray-900 ml-64">
                     {/* Header section */}
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-bold">All Product Categories</h2>
+                        <h2 className="text-xl font-bold">All Product Categories</h2>
                         <button
                             className="px-4 py-2 bg-[#5BBF5B] text-white rounded-lg hover:bg-[#56AE57]"
                             onClick={handleAddCategory}
@@ -252,10 +305,10 @@ export default function ProductCategoryPage() {
                     </div>
 
                     {/* Categories Table */}
-                    <div className="p-6 bg-white rounded-lg shadow">
+                    <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-400">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b">
+                                <tr className="border-b border-gray-300">
                                     <th className="py-2 px-4 font-medium">Name and Description</th>
                                     <th className="py-2 px-4 font-medium">Product Linked</th>
                                     <th className="py-2 px-4 font-medium">Actions</th>
@@ -263,7 +316,7 @@ export default function ProductCategoryPage() {
                             </thead>
                             <tbody>
                                 {categories.map((category, index) => (
-                                    <tr key={index} className="border-b">
+                                    <tr key={index} className="border-b border-gray-300">
                                         <td className="py-2 px-4">
                                             <h3 className="font-semibold">{category.name}</h3>
                                             <p className="text-sm text-gray-600">{category.description}</p>
@@ -331,13 +384,18 @@ export default function ProductCategoryPage() {
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
                                 </select>
-                                <label className="block text-sm font-medium">Service Link</label>
-                                <input
-                                    type="text"
-                                    value={selectedCategory?.serviceLink || ""}
-                                    onChange={(e) => setSelectedCategory({ ...selectedCategory, serviceLink: e.target.value })}
-                                    className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
-                                />
+                                <label className="block text-sm font-medium mb-1">Service Link</label>
+                        <select
+                            value={newGroup.serviceLink || ""}
+                            onChange={(e) => setNewGroup({ ...newGroup, serviceLink: e.target.value })}
+                            className="w-full p-2 border rounded-lg bg-lime-100 text-gray-900 border-lime-300"
+                            required
+                        >
+                            <option value="">Select Service Group</option>
+                            {groups.map((group, index) => (
+                                <option key={index} value={group.name}>{group.name}</option>
+                            ))}
+                        </select>
                                 <button className="px-4 py-2 bg-gray-300 bg-lime-400 border border-lime-500 rounded-lg w-full mb-3">Edit Services</button>
                                 <div className="flex justify-between">
                                     <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={() => setIsModalOpen(false)}>
@@ -388,13 +446,19 @@ export default function ProductCategoryPage() {
                                         <option value="Inactive">Inactive</option>
                                     </select>
                                     <label className="block text-sm font-medium">Service Link</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="serviceLink"
                                         value={newCategory.serviceLink}
                                         onChange={(e) => setNewCategory({ ...newCategory, serviceLink: e.target.value })}
                                         className="w-full px-3 py-2 border bg-lime-200 text-gray-900 border border-lime-400 rounded-lg mb-3"
-                                    />
+                                    >
+                                        <option value="">Select a service</option>
+                                        {services.map((service) => (
+                                            <option key={service.id} value={service.link}>
+                                                {service.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <div className="flex justify-between">
                                         <button
                                             type="button"

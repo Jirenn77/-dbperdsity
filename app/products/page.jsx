@@ -9,6 +9,7 @@ import { BarChart } from "lucide-react";
 import { Folder, ClipboardList, Factory, ShoppingBag } from "lucide-react";
 import { Home, Users, FileText, CreditCard, Package, Layers, ShoppingCart, Settings, LogOut, Plus } from "lucide-react";
 
+
 const navLinks = [
     { href: "/servicess", label: "Services", icon: "💆‍♀️" },
     { href: "/price-list", label: "Price List", icon: "📋" },
@@ -21,33 +22,6 @@ const salesLinks = [
     { href: "/payments", label: "Payments", icon: "💰" },
 ];
 
-const addItem = async () => {
-    const payload = {
-        action: "add_item", // Ensure this is included
-        name: "New Item",
-        category: "Category",
-        type: "Type",
-        stockQty: 10,
-        service: "Service",
-        description: "Description",
-        unitPrice: 100.00,
-        supplier: "Supplier",
-    };
-
-    console.log("Sending payload:", payload); // Log the payload
-
-    const response = await fetch("http://localhost/API/addItem.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    console.log("Response from server:", data); // Log the response
-};
-
 export default function InventoryPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [products, setProducts] = useState([]);
@@ -56,6 +30,7 @@ export default function InventoryPage() {
     const [modalType, setModalType] = useState("view");
     const [isMoreModalOpen, setIsMoreModalOpen] = useState(false);
     const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     const [newItem, setNewItem] = useState({
         name: "",
@@ -92,36 +67,39 @@ export default function InventoryPage() {
     };
 
     const handleEdit = () => {
-        setModalType("edit"); // Set modal type to "edit"
-        setIsModalOpen(true); // Open the modal
+        setModalType("edit");
+        setIsModalOpen(true);
     };
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-
+    
+        const payload = {
+            action: "edit_item",
+            id: selectedItem.id, // Ensure selectedItem is defined and has an id
+            name: selectedItem.name,
+            category: selectedItem.category,
+            type: selectedItem.type,
+            stockQty: selectedItem.stockQty,
+            service: selectedItem.service,
+            description: selectedItem.description,
+            unitPrice: selectedItem.unitPrice,
+            supplier: selectedItem.supplier,
+        };
+    
         try {
             const response = await fetch("http://localhost/API/addItem.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(selectedItem),
+                body: JSON.stringify(payload),
             });
-
+    
             const data = await response.json();
-
+    
             if (data.success) {
-                // Refetch the updated list of products
-                const res = await fetch("http://localhost/API/getInventory.php?action=get_products");
-                const updatedProducts = await res.json();
-
-                // Update the products state with the new data
-                setProducts(updatedProducts);
-
-                // Show success message
                 toast.success("Item updated successfully!");
-
-                // Close the modal
                 setIsModalOpen(false);
             } else {
                 toast.error(data.error);
@@ -134,12 +112,10 @@ export default function InventoryPage() {
 
     const handleCloneItem = async () => {
         const payload = {
-            action: "clone_item", // Ensure this is included
-            id: selectedItem.id, // Ensure selectedItem is defined and has an id
+            action: "clone_item",
+            id: selectedItem.id,
         };
-    
-        console.log("Sending payload:", payload); // Log the payload
-    
+
         const response = await fetch("http://localhost/API/addItem.php", {
             method: "POST",
             headers: {
@@ -147,10 +123,9 @@ export default function InventoryPage() {
             },
             body: JSON.stringify(payload),
         });
-    
+
         const data = await response.json();
-        console.log("Response from server:", data); // Log the response
-    
+
         if (data.success) {
             toast.success("Item cloned successfully!");
             setIsMoreModalOpen(false);
@@ -161,12 +136,10 @@ export default function InventoryPage() {
 
     const handleMarkAsInactive = async () => {
         const payload = {
-            action: "mark_as_inactive", // Ensure this is included
-            id: selectedItem.id, // Ensure selectedItem is defined and has an id
+            action: "mark_as_inactive",
+            id: selectedItem.id,
         };
-    
-        console.log("Sending payload:", payload); // Log the payload
-    
+
         const response = await fetch("http://localhost/API/addItem.php", {
             method: "POST",
             headers: {
@@ -174,10 +147,9 @@ export default function InventoryPage() {
             },
             body: JSON.stringify(payload),
         });
-    
+
         const data = await response.json();
-        console.log("Response from server:", data); // Log the response
-    
+
         if (data.success) {
             toast.success("Item marked as inactive!");
             setIsMoreModalOpen(false);
@@ -189,12 +161,10 @@ export default function InventoryPage() {
     const handleDelete = async () => {
         if (window.confirm(`Are you sure you want to delete ${selectedItem.name}?`)) {
             const payload = {
-                action: "delete_item", // Ensure this is included
-                id: selectedItem.id, // Ensure selectedItem is defined and has an id
+                action: "delete_item",
+                id: selectedItem.id,
             };
-    
-            console.log("Sending payload:", payload); // Log the payload
-    
+
             const response = await fetch("http://localhost/API/addItem.php", {
                 method: "POST",
                 headers: {
@@ -202,10 +172,9 @@ export default function InventoryPage() {
                 },
                 body: JSON.stringify(payload),
             });
-    
+
             const data = await response.json();
-            console.log("Response from server:", data); // Log the response
-    
+
             if (data.success) {
                 toast.success("Item deleted successfully!");
                 setSelectedItem(null);
@@ -217,16 +186,14 @@ export default function InventoryPage() {
     };
 
     const handleAddToGroup = async () => {
-        const groupId = prompt("Enter the group ID:"); // Prompt the user for the group ID
+        const groupId = prompt("Enter the group ID:");
         if (groupId) {
             const payload = {
-                action: "add_to_group", // Ensure this is included
-                id: selectedItem.id, // Ensure selectedItem is defined and has an id
-                groupId: groupId, // Include the group ID
+                action: "add_to_group",
+                id: selectedItem.id,
+                groupId: groupId,
             };
-    
-            console.log("Sending payload:", payload); // Log the payload
-    
+
             const response = await fetch("http://localhost/API/addItem.php", {
                 method: "POST",
                 headers: {
@@ -234,10 +201,9 @@ export default function InventoryPage() {
                 },
                 body: JSON.stringify(payload),
             });
-    
+
             const data = await response.json();
-            console.log("Response from server:", data); // Log the response
-    
+
             if (data.success) {
                 toast.success("Item added to group successfully!");
                 setIsMoreModalOpen(false);
@@ -248,17 +214,15 @@ export default function InventoryPage() {
     };
 
     const handleCheckboxChange = (item) => {
-        // If the clicked item is already selected, deselect it
         if (selectedItem?.name === item.name) {
             setSelectedItem(null);
         } else {
-            // Otherwise, set the clicked item as the selected item
             setSelectedItem(item);
         }
     };
 
     const handleAddItem = () => {
-        setIsAddItemModalOpen(true); // Open the "Add Item" modal
+        setIsAddItemModalOpen(true);
     };
 
     const handleNewItemChange = (e) => {
@@ -273,29 +237,24 @@ export default function InventoryPage() {
         e.preventDefault();
 
         try {
-            // Send a POST request to add the new item
             const response = await fetch("http://localhost/API/addItem.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(newItem),
+                body: JSON.stringify({
+                    action: "add_item",
+                    ...newItem,
+                }),
             });
 
             const data = await response.json();
 
             if (data.success) {
-                // Refetch the updated list of products
                 const res = await fetch("http://localhost/API/getInventory.php?action=get_products");
                 const updatedProducts = await res.json();
-
-                // Update the products state with the new data
                 setProducts(updatedProducts);
-
-                // Show success message
                 toast.success("Item added successfully!");
-
-                // Close the modal and reset the form
                 setIsAddItemModalOpen(false);
                 setNewItem({
                     name: "",
@@ -316,6 +275,7 @@ export default function InventoryPage() {
         }
     };
 
+
     const handleLogout = () => {
         localStorage.removeItem("authToken");
         window.location.href = "/";
@@ -326,132 +286,152 @@ export default function InventoryPage() {
             <Toaster />
 
             {/* Header */}
-            <header className="flex items-center justify-between bg-[#56A156] text-white p-4 w-full">
-                <div className="flex items-center space-x-4">
-                    <Link href="/home">
-                        <button className="text-2xl">🏠</button>
-                    </Link>
-                </div>
+<header className="flex items-center justify-between bg-[#89C07E] text-white p-4 w-full h-16 pl-64 relative">
+    <div className="flex items-center space-x-4">
+        {/* Home icon removed from here */}
+    </div>
 
-                <div className="flex items-center space-x-4 flex-grow justify-center">
-                    <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
-                        ➕
+    <div className="flex items-center space-x-4 flex-grow justify-center">
+        <button className="text-2xl" onClick={() => setIsModalOpen(true)}>
+            ➕
+        </button>
+        <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
+        />
+        <button
+            onClick={handleSearch}
+            className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-gray-800 text-md"
+        >
+            Search
+        </button>
+    </div>
+
+    <div className="flex items-center space-x-4 relative">
+        <div 
+            className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold cursor-pointer"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+        >
+            A
+        </div>
+        {isProfileOpen && (
+            <div className="bg-[#6CAE5E] absolute top-12 right-0 text-white shadow-lg rounded-lg w-48 p-2 flex flex-col animate-fade-in text-start">
+                <Link href="/acc-settings">
+                <button className="flex items-center gap-2 px-4 py-2 hover:bg-[#467750] rounded w-full justify-start">
+                    <User size={16} /> Edit Profile
+                </button>
+                </Link>
+                <Link href="/settings">
+                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-[#467750] rounded w-full justify-start">
+                        <Settings size={16} /> Settings
                     </button>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 rounded-lg bg-white text-gray-900 w-64 focus:outline-none"
-                    />
-                    <button
-                        onClick={handleSearch}
-                        className="px-3 py-1.5 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-white text-sm"
-                    >
-                        Search
-                    </button>
-                </div>
+                </Link>
+                <button className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded justify-start" onClick={handleLogout}>
+                    <LogOut size={16} /> Logout
+                </button>
+            </div>
+        )}
+    </div>
+</header>
 
-                <div className="flex items-center space-x-4">
-                    <Link href="/acc-settings">
-                        <button className="text-xl">⚙️</button>
-                    </Link>
-                    <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-lg font-bold">
-                        A
-                    </div>
-                </div>
-            </header>
+{/* Sidebar */}
+<div className="flex flex-1">
+    <nav className="w-64 h-screen bg-gradient-to-b from-[#467750] to-[#56A156] text-gray-900 flex flex-col items-center py-6 fixed top-0 left-0">
+        <div className="flex items-center space-x-2 mb-4">
+            <h1 className="text-xl font-bold text-white flex items-center space-x-2">
+                <span>Lizly Skin Care Clinic</span>
+            </h1>
+        </div>
 
-            <div className="flex flex-1">
-                <nav className="w-64 bg-gradient-to-b from-[#77DD77] to-[#56A156] text-gray-900 flex flex-col items-center py-6">
-                    <h1 className="text-2xl font-bold mb-6 text-gray-800">Lizly Skin Care Clinic</h1>
+        {/* Home Menu Button */}
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Link href="/home" passHref>
+                <Menu.Button as="div" className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center cursor-pointer">
+                    <Home className="text-2xl"></Home>
+                    <span className="ml-2">Dashboard</span>
+                </Menu.Button>
+            </Link>
+        </Menu>
 
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <ShoppingCart className="mr-2" size={20} /> POS ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
-                                { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
-                                { href: "/items", label: "Item Groups", icon: <Package size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <ShoppingCart className="mr-2" size={20} /> POS ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/servicess", label: "Services", icon: <Layers size={20} /> },
+                    { href: "/price-list", label: "Price List", icon: <FileText size={20} /> },
+                    { href: "/items", label: "Service Groups", icon: <Package size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
 
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <BarChart className="mr-2" size={20} /> Sales ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/customers", label: "Customers", icon: <Users size={20} /> },
-                                { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
-                                { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <BarChart className="mr-2" size={20} /> Sales ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/customers", label: "Customers", icon: <Users size={20} /> },
+                    { href: "/invoices", label: "Invoices", icon: <FileText size={20} /> },
+                    { href: "/payments", label: "Payments", icon: <CreditCard size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
 
-
-                    {/* Inventory Menu */}
-                    <Menu as="div" className="relative w-full px-4 mt-4">
-                        <Menu.Button className="w-full p-3 bg-[#5BBF5B] rounded-lg hover:bg-[#4CAF4C] text-left font-normal md:font-bold flex items-center">
-                            <Package className="mr-2" size={20} /> Inventory ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute left-4 mt-2 w-full bg-[#66C466] text-gray-900 rounded-lg shadow-lg z-10">
-                            {[
-                                { href: "/products", label: "Products", icon: <Package size={20} /> },
-                                { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
-                                { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
-                                { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
-                                { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
-                            ].map((link) => (
-                                <Menu.Item key={link.href}>
-                                    {({ active }) => (
-                                        <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#4CAF4C] text-white' : ''}`}>
-                                            {link.icon}
-                                            <span className="font-normal md:font-bold">{link.label}</span>
-                                        </Link>
-                                    )}
-                                </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                    </Menu>
-
-                    <Link
-                        href="#"
-                        onClick={handleLogout}
-                        className="flex items-center space-x-4 p-3 rounded-lg bg-red-600 py-3 hover:bg-red-500 mt-auto"
-                    >
-                        <LogOut size={20} />
-                        <span className="ml-2 font-semibold">Logout</span>
-                    </Link>
-                </nav>
+        {/* Inventory Menu */}
+        <Menu as="div" className="relative w-full px-4 mt-4">
+            <Menu.Button className="w-full p-3 bg-[#467750] rounded-lg hover:bg-[#2A3F3F] text-white text-left font-normal md:font-bold flex items-center">
+                <Package className="mr-2" size={20} /> Inventory ▾
+            </Menu.Button>
+            <Menu.Items className="absolute left-4 mt-2 w-full bg-[#467750] text-white rounded-lg shadow-lg z-10">
+                {[
+                    { href: "/products", label: "Products", icon: <Package size={20} /> },
+                    { href: "/categories", label: "Product Category", icon: <Folder size={20} /> },
+                    { href: "/stocks", label: "Stock Levels", icon: <ClipboardList size={20} /> },
+                    { href: "/suppliers", label: "Supplier Management", icon: <Factory size={20} /> },
+                    { href: "/purchase", label: "Purchase Order", icon: <ShoppingBag size={20} /> },
+                ].map((link) => (
+                    <Menu.Item key={link.href}>
+                        {({ active }) => (
+                            <Link href={link.href} className={`flex items-center space-x-4 p-3 rounded-lg ${active ? 'bg-[#2A3F3F] text-white' : ''}`}>
+                                {link.icon}
+                                <span className="font-normal md:font-bold">{link.label}</span>
+                            </Link>
+                        )}
+                    </Menu.Item>
+                ))}
+            </Menu.Items>
+        </Menu>
+    </nav>
 
                 {/* Main Content */}
-                <main className="flex-1 p-6 bg-gradient-to-b from-[#77DD77] to-[#CFFFCF] text-gray-900 flex">
+                <main className="flex-1 p-8 p-6 bg-white max-w-screen-xl mx-auto ml-64">
                     {/* Table Section */}
-                    <div className="flex-1 pr-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h1 className="text-2xl font-bold">All Items</h1>
+                    <div className={`flex-1 pr-4 transition-all ${selectedItem ? "w-[calc(100%-300px)]" : "w-full"}`}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-2xl font-bold">All Items</h1>
                             <button
                                 onClick={handleAddItem}
                                 className="bg-[#5BBF5B] text-white py-2 px-4 rounded hover:bg-[#56AE57]"
@@ -460,8 +440,8 @@ export default function InventoryPage() {
                             </button>
                         </div>
 
-                        <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                            <thead className="bg-[#77DD77] text-black">
+                        <table className="w-full bg-gray-400 shadow-lg border border-gray-400 rounded-lg overflow-hidden">
+                            <thead className="bg-[#5BBF5B] text-black">
                                 <tr>
                                     <th className="text-center py-2 px-4 w-12"></th>
                                     <th className="text-left py-2 px-4">Name</th>
@@ -498,7 +478,7 @@ export default function InventoryPage() {
 
                     {/* Selected Item Details Section */}
                     {selectedItem && (
-                        <div className="w-96 bg-white rounded-lg shadow-md p-4 ml-4">
+                        <div className="w-[300px] bg-white rounded-lg shadow-md border border-gray-400 p-4 fixed right-4 top-20">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold">{selectedItem.name}</h2>
                                 <button
@@ -570,96 +550,107 @@ export default function InventoryPage() {
 
             {/* Add Item Modal */}
             {isAddItemModalOpen && (
-                <Dialog open={isAddItemModalOpen} onClose={() => setIsAddItemModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <Dialog.Panel className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-96">
-                        <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">Add New Item</Dialog.Title>
-                        <form onSubmit={handleAddItemSubmit}>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={newItem.name}
-                                        onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                                    <input
-                                        type="text"
-                                        name="category"
-                                        value={newItem.category}
-                                        onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900">Type</label>
-                                    <input
-                                        type="text"
-                                        name="type"
-                                        value={newItem.type}
-                                        onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900">Stock Quantity</label>
-                                    <input
-                                        type="number"
-                                        name="stockQty"
-                                        value={newItem.stockQty}
-                                        onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900">Unit Price</label>
-                                    <input
-                                        type="number"
-                                        name="unitPrice"
-                                        value={newItem.unitPrice}
-                                        onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900">Supplier</label>
-                                    <input
-                                        type="text"
-                                        name="supplier"
-                                        value={newItem.supplier}
-                                        onChange={handleNewItemChange}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex justify-end space-x-2 mt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsAddItemModalOpen(false)}
-                                    className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-[#5BBF5B] text-white rounded hover:bg-[#4CAF4C]"
-                                >
-                                    Add Item
-                                </button>
-                            </div>
-                        </form>
-                    </Dialog.Panel>
-                </Dialog>
+    <Dialog open={isAddItemModalOpen} onClose={() => setIsAddItemModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <Dialog.Panel className="bg-white bg-opacity-100 p-6 rounded-lg shadow-xl w-96">
+            <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">Add New Item</Dialog.Title>
+            <form onSubmit={handleAddItemSubmit}>
+                <div className="space-y-4">
+                    {/* Row for each form field */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={newItem.name}
+                                onChange={handleNewItemChange}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Category</label>
+                            <input
+                                type="text"
+                                name="category"
+                                value={newItem.category}
+                                onChange={handleNewItemChange}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Type</label>
+                            <input
+                                type="text"
+                                name="type"
+                                value={newItem.type}
+                                onChange={handleNewItemChange}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Stock Quantity</label>
+                            <input
+                                type="number"
+                                name="stockQty"
+                                value={newItem.stockQty}
+                                onChange={handleNewItemChange}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Unit Price</label>
+                            <input
+                                type="number"
+                                name="unitPrice"
+                                value={newItem.unitPrice}
+                                onChange={handleNewItemChange}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Supplier</label>
+                            <input
+                                type="text"
+                                name="supplier"
+                                value={newItem.supplier}
+                                onChange={handleNewItemChange}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-end space-x-2 mt-4">
+                    <button
+                        type="button"
+                        onClick={() => setIsAddItemModalOpen(false)}
+                        className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={() => handleAddItemSubmit}
+                        className="px-4 py-2 bg-[#5BBF5B] text-white rounded hover:bg-[#4CAF4C]"
+                    >
+                        Add Item
+                    </button>
+                </div>
+            </form>
+        </Dialog.Panel>
+    </Dialog>
             )}
 
             {/* More Button Modal */}
@@ -731,97 +722,108 @@ export default function InventoryPage() {
                 </Dialog>
             )}
 
-            {isModalOpen && modalType === "edit" && (
-                <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <Dialog.Panel className="bg-white p-6 rounded-lg shadow-xl w-96">
-                        <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">Edit Item</Dialog.Title>
-                        <form onSubmit={handleEditSubmit}>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={selectedItem?.name || ""}
-                                        onChange={(e) => setSelectedItem({ ...selectedItem, name: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                                    <input
-                                        type="text"
-                                        name="category"
-                                        value={selectedItem?.category || ""}
-                                        onChange={(e) => setSelectedItem({ ...selectedItem, category: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Type</label>
-                                    <input
-                                        type="text"
-                                        name="type"
-                                        value={selectedItem?.type || ""}
-                                        onChange={(e) => setSelectedItem({ ...selectedItem, type: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Stock Quantity</label>
-                                    <input
-                                        type="number"
-                                        name="stockQty"
-                                        value={selectedItem?.stockQty || 0}
-                                        onChange={(e) => setSelectedItem({ ...selectedItem, stockQty: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Unit Price</label>
-                                    <input
-                                        type="number"
-                                        name="unitPrice"
-                                        value={selectedItem?.unitPrice || 0}
-                                        onChange={(e) => setSelectedItem({ ...selectedItem, unitPrice: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Supplier</label>
-                                    <input
-                                        type="text"
-                                        name="supplier"
-                                        value={selectedItem?.supplier || ""}
-                                        onChange={(e) => setSelectedItem({ ...selectedItem, supplier: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex justify-end space-x-2 mt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-[#5BBF5B] text-white rounded hover:bg-[#4CAF4C]"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
-                    </Dialog.Panel>
-                </Dialog>
+{isModalOpen && modalType === "edit" && (
+    <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <Dialog.Panel className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <Dialog.Title className="text-lg font-bold mb-4 text-gray-800">Edit Item</Dialog.Title>
+            <form onSubmit={handleEditSubmit}>
+                <div className="space-y-4">
+                    {/* Row for each form field */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={selectedItem?.name || ""}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, name: e.target.value })}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Category</label>
+                            <input
+                                type="text"
+                                name="category"
+                                value={selectedItem?.category || ""}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, category: e.target.value })}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Type</label>
+                            <input
+                                type="text"
+                                name="type"
+                                value={selectedItem?.type || ""}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, type: e.target.value })}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Stock Quantity</label>
+                            <input
+                                type="number"
+                                name="stockQty"
+                                value={selectedItem?.stockQty || 0}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, stockQty: e.target.value })}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Unit Price</label>
+                            <input
+                                type="number"
+                                name="unitPrice"
+                                value={selectedItem?.unitPrice || 0}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, unitPrice: e.target.value })}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Supplier</label>
+                            <input
+                                type="text"
+                                name="supplier"
+                                value={selectedItem?.supplier || ""}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, supplier: e.target.value })}
+                                className="w-full px-3 py-2 border rounded-lg bg-lime-200 text-gray-900 border border-lime-400"
+                                required
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-end space-x-2 mt-4">
+                    <button
+                        type="button"
+                        onClick={() => setIsModalOpen(false)}
+                        className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={() => handleEditSubmit}
+                        className="px-4 py-2 bg-[#5BBF5B] text-white rounded hover:bg-[#4CAF4C]"
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </Dialog.Panel>
+    </Dialog>
             )}
         </div>
     );

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
-import bcrypt from "bcryptjs";
 import ReCAPTCHA from "react-google-recaptcha";
 
 export default function Register() {
@@ -14,8 +13,6 @@ export default function Register() {
     const [captchaToken, setCaptchaToken] = useState(null);
     const [error, setError] = useState("");
     const router = useRouter();
-
-    const MIN_PASSWORD_LENGTH = 8;
 
     const sanitizeInput = (input) => {
         return input.replace(/[<>/';\"(){}]/g, "").trim();
@@ -32,10 +29,10 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const cleanEmail = sanitizeInput(email);
-        let cleanPassword = sanitizeInput(password);
-        let cleanConfirmPassword = sanitizeInput(confirmPassword);
+        const cleanPassword = sanitizeInput(password);
+        const cleanConfirmPassword = sanitizeInput(confirmPassword);
 
         if (!validateEmail(cleanEmail)) {
             toast.error("Invalid email format");
@@ -57,15 +54,13 @@ export default function Register() {
             return;
         }
 
-        const hashedPassword = await bcrypt.hash(cleanPassword, 10);
-
         try {
             const res = await axios.post(
-                "http://localhost/API/login.php?action=register",
-                { email: cleanEmail, password: hashedPassword, role: "customer", captchaToken },
+                "http://localhost/API/getBalance.php?action=register",
+                { email: cleanEmail, password: cleanPassword, role: "customer", captchaToken },
                 { headers: { "Content-Type": "application/json" } }
             );
-            
+
             if (res.data.success) {
                 toast.success("Registration successful! You can now log in.");
                 router.push("/");
@@ -118,7 +113,7 @@ export default function Register() {
                     </div>
                     <div className="mb-4 flex justify-center">
                         <ReCAPTCHA
-                            sitekey="YOUR_RECAPTCHA_SITE_KEY"
+                            sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Replace with your actual site key
                             onChange={(token) => setCaptchaToken(token)}
                         />
                     </div>
