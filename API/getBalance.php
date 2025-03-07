@@ -16,24 +16,18 @@ $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
 
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES => false,
+];
 
-$pdo = connectDatabase($host, $db, $user, $pass, $charset);
-
-function connectDatabase($host, $db, $user, $pass, $charset)
-{
-    $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-    $options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ];
-
-    try {
-        return new PDO($dsn, $user, $pass, $options);
-    } catch (PDOException $e) {
-        echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
-        exit();
-    }
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+    exit();
 }
 
 
@@ -427,7 +421,6 @@ function register() {
 
     $data = json_decode($rawData, true);
 
-    // Log the decoded data
     error_log("Decoded data: " . print_r($data, true));
 
     if (!isset($data['email'], $data['password'], $data['role'], $data['captchaToken'])) {
@@ -471,8 +464,20 @@ function register() {
 
     // Insert into database
     try {
-        $pdo = new PDO('mysql:host=localhost;dbname=your_database', 'username', 'password');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $host = 'localhost';
+        $db = 'dbcom';
+        $user = 'root';
+        $pass = '';
+        $charset = 'utf8mb4';
+
+        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ];
+
+        $pdo = new PDO($dsn, $user, $pass, $options);
 
         if ($role === 'customer') {
             $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
